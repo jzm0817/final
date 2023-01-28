@@ -1,5 +1,8 @@
 
 import platform
+import os
+import matplotlib.pyplot as plt
+from torchvision.io import read_image
 
 system_name = platform.system()
 
@@ -10,5 +13,7 @@ elif system_name == "Linux":
 else:
     print(system_name)
 
-print("sad")
+pic_stft_path = "D:/workspace/art/pic/stft_origin/"
 
+def load_datasets():
+    training_root = pic_stft_path
