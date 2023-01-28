@@ -10,5 +10,3 @@ elif system_name == "Linux":
 else:
     print(system_name)
 
-print("sad")
-
