@@ -155,7 +155,7 @@ def load_dataset(path, **kwargs):
     return data_set
 
 
-def create_h5_dataset(root, **kwargs):
+def create_h5_file(root, **kwargs):
 
     if "pic_trans" in kwargs:
         trans_ctr_list = kwargs["pic_trans"]
@@ -181,7 +181,9 @@ def create_h5_dataset(root, **kwargs):
     data_set_type = []
     if os.path.exists(save_path):
         os.remove(save_path)
+
     h5_file = h5py.File(save_path, "w")
+
     for cur_dir, dirs, files in os.walk(root):
         for file in files:
             pic = read_image(os.path.join(cur_dir, file))
@@ -189,6 +191,7 @@ def create_h5_dataset(root, **kwargs):
             pic = np.array(pic).astype(np.float64)
             data_set_data.append(pic)
             data_set_type.append(root.split('/')[-1])
+
     h5_file.create_dataset("image", data = data_set_data)
     h5_file.create_dataset("type", data = data_set_type)
     h5_file.close()  
@@ -202,18 +205,18 @@ class h5py_dataset(Dataset):
         super().__init__()
         self.file = file
 
-    
     def __getitem__(self, index):
         with h5py.File(self.file, 'r') as f:
-            return f['image'][index], f['type'][0].decode()
+            return f['image'][index], f['type'][index].decode()
 
     def __len__(self):
         with h5py.File(self.file, 'r') as f:
             return len(f['image'])
+    
 
 
-
-# path_dict = get_dataset_path()
+# def load_dataset_h5(file):
+#     return DataLoader()
 
 # print(path_dict["path"].split('/'))
 
@@ -227,22 +230,25 @@ class h5py_dataset(Dataset):
 # data = load_dataset(os.path.join(path_dict["path"], path_dict["dict"][0]), show_pic=1, index=[0])
 #             pic_trans = [transforms.Grayscale()], save=1)
 # print(len(data))
-# pic_list = [
-#                 transforms.Resize((96 * 2,96 * 2)),
-#                 # transforms.CenterCrop((400,400)),
-#                 transforms.ConvertImageDtype(torch.double),
-#                 transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
-#                 # transforms.Grayscale()
-#             ]
-# create_h5_dataset(os.path.join(path_dict["path"], path_dict["dict"][1]), pic_trans=pic_list)
+pic_list = [
+                # transforms.Resize((96 * 2,96 * 2)),
+                # transforms.CenterCrop((400,400)),
+                transforms.ConvertImageDtype(torch.double),
+                transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
+                # transforms.Grayscale()
+            ]
+
+path_dict = get_dataset_path()
+# create_h5_file(os.path.join(path_dict["path"], path_dict["dict"][0]), pic_trans = pic_list)
 # data =  h5py_dataset(os.path.join(path_dict["path"], path_dict["dict"][0]))
 
 
-# data = h5py_dataset("D:/workspace/art/data_h5/awgn_test.hdf5")
-# print(len(data))
-# item = data.__getitem__(0)
-# print(item[0].shape)
-# p = transforms.ToTensor()(item[0])
-# print(p.shape)
-# img = transforms.ToPILImage()(p)
-# img.show()
+data = h5py_dataset("D:/workspace/art/data_h5/awgn_test.hdf5")
+# data = DataLoader(data)
+# imag, data_type = data.__getitem__(1)
+# imag = imag.transpose(1, 2, 0)
+# print(type(imag))
+# print((data_type))
+# print(imag.shape)
+# plt.imshow(imag)
+# plt.show()
