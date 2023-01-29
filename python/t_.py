@@ -14,13 +14,14 @@ class cls_dataset(Dataset):
         super().__init__()
         self.root = root
         self.all_type = all_type
-        self.transform = transforms.Compose([
+        ctr_dict = [
                 # transforms.Resize((96 * 2,96 * 2)),
                 # transforms.CenterCrop((400,400)),
                 transforms.ConvertImageDtype(torch.double),
                 transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
                 transforms.Grayscale()
-            ])
+            ]
+        self.transform = transforms.Compose(ctr_dict)
         self.set = []
 
         for cur_dir, dirs, files in os.walk(self.root):
@@ -58,7 +59,7 @@ def load_datasets(flag):
         print(len(test_set))
 
         print(training_set.__getitem__(1)['type'])
-        p = training_set.__getitem__(2)['image']
+        p = training_set.__getitem__()['image']
         img = ToPILImage()(p)
         img.show()
 

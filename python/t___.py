@@ -1,4 +1,5 @@
-import t_
+import dataset
+import os
 import torch
 import torchvision as tv
 from torch.utils.data import DataLoader
@@ -204,12 +205,27 @@ def train(**kwargs):
     # 写法2：
     # 定义类Dataset（Datasets）包装类，重写__getitem__（进行transforms系列操作）、__len__方法（获取样本个数）
     # ### 两种写法有什么区别
-    dataset = t_.load_datasets(0)
+
+
+    # data = t_.load_datasets(0)    
+    trans_list = [
+                tv.transforms.Resize((96 * 2,96 * 2)),
+                # transforms.CenterCrop((400,400)),
+                tv.transforms.ConvertImageDtype(torch.double),
+                tv.transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
+                # transforms.Grayscale()
+            ]
+    path_dict = dataset.get_dataset_path()
+    data = dataset.load_dataset(os.path.join(path_dict["path"], path_dict["dict"][1]), 
+                                pic_trans = trans_list)
+
+    # data = dataset.h5py_dataset("D:/workspace/art/data_h5/awgn_training.hdf5")
+
 
     # 数据预处理2
     # 查看drop_last操作,
     dataloader = DataLoader(
-        dataset,      # 数据加载
+        data,      # 数据加载
         batch_size=opt.batch_size,    # 批处理大小设置
         shuffle=True,     # 是否进行洗牌操作
         #num_workers=opt.num_workers,     # 是否进行多线程加载数据设置
@@ -265,7 +281,9 @@ def train(**kwargs):
         # print(len(dataloader))
         for ii_, img in enumerate(dataloader):
             # 将处理好的图片赋值
+
             img_ = img['image']
+            # img_ = img[ii_]
             # print(img_)
 
             img_ = img_.type(torch.cuda.FloatTensor)
