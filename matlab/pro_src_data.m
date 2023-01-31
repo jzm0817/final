@@ -1,20 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% class : 
-%%%        fh
-%%% fea: 
-%%%        generate frequency hopping signal
-%%% parameter: 
-%%%             fs: sample rate
-%%%     member_num: the number of fh signal
-%%%        hop_num: the number of hop
-%%%     hop_length: sample in a hop
-%%%   network_interval: frequency interval between two adjacent fh signal (in MHz)
-%%%   freq_pattern: freq_pattern 
-%%%  theta_pattern: theta_pattern
-%%%  modulation_para: fh signal modulation parameter
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-classdef fh
+
+classdef pro_src_data
     
     properties 
         freq_pattern;
@@ -43,7 +29,7 @@ classdef fh
         obj.network_interval = network_interval;
         obj.freq_pattern = freq_pattern;
         obj.theta_pattern = theta_pattern;
-    
+
         %% check two numbers are equal
         if ~(obj.member_num == size(fieldnames(modulation_para), 1))
             throw("member_num error!")
@@ -84,10 +70,6 @@ classdef fh
                 modulation_obj = msk_modulation(kk.("symbol_rate"), obj.fs, obj.hop_length * obj.hop_num);
                 %% call member method to realize DUC
                 modulation_obj = modulation_obj.mixer(carrier, 1);
-            elseif kk.("mod") == "psk"
-                modulation_obj = psk_modulation(kk.("symbol_rate"), obj.fs, obj.hop_length * obj.hop_num, kk.("order"), carrier);
-            elseif kk.("mod") == "qam"
-                modulation_obj = qam_modulation(kk.("symbol_rate"), obj.fs, obj.hop_length * obj.hop_num, kk.("order"), carrier);
             end
             
             %% mapping : member_name -> msk_modulation class
@@ -106,4 +88,4 @@ classdef fh
     end
 
 
-end
+    end

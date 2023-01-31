@@ -27,12 +27,12 @@ classdef psk_modulation
         initial_bit;         %% random symbol
         order;
         rrc_h;
-        carrier_frequency;
+        carrier;
     end
 
     methods 
         %% constructor
-        function obj = psk_modulation(symbol_rate, sample_rate, sample_length, order, carrier_frequency, varargin)
+        function obj = psk_modulation(symbol_rate, sample_rate, sample_length, order, carrier, varargin)
             obj.symbol_rate = symbol_rate;
             obj.sample_rate = sample_rate;
             obj.bit_rate = symbol_rate;
@@ -47,9 +47,9 @@ classdef psk_modulation
                 obj.rrc_h = rcosdesign(0.7, 4, obj.sample_per_symbol, 'sqrt'); 
             end
 
-            obj.carrier_frequency = carrier_frequency;
+            obj.carrier = carrier;
             [obj.modulated_seq, obj.initial_bit, obj.symbol_mapping, obj.modulated_seq_up] = generate_modulated_seq(obj);
-            carrier = complex_exponential_wave(obj.carrier_frequency, obj.sample_rate, obj.sample_length).sample_seq;
+            % carrier = complex_exponential_wave(obj.carrier_frequency, obj.sample_rate, obj.sample_length).sample_seq;
             mixer(obj, carrier, 1);
             obj.t = (0:1:obj.sample_length-1) * (1 / obj.sample_rate);
             obj.t = obj.t';
@@ -75,9 +75,9 @@ classdef psk_modulation
             end
 
             %% base band modulated signal
-            carrier = complex_exponential_wave(obj.carrier_frequency, obj.sample_rate, obj.sample_length).sample_seq;
-            modulated_seq_up = real(modulated_seq .* carrier);
-
+            % carrier = complex_exponential_wave(obj.carrier_frequency, obj.sample_rate, obj.sample_length).sample_seq;
+            modulated_seq_up = real(modulated_seq .* obj.carrier);
+            modulated_seq_up = modulated_seq_up ./ max(abs(modulated_seq_up));
         end
 
         %% DUC
