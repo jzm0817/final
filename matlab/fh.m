@@ -18,7 +18,7 @@ classdef fh
     
     properties 
         freq_pattern;
-        theta_pattern
+        theta_pattern;
         member_num;
         % modualtion_table;
         hop_num;
@@ -78,7 +78,6 @@ classdef fh
             %% save modulation parameter
             kk = obj.modulation_para.(member_name(i));
 
-            %% only support to msk modulation
             if kk.("mod") == "msk"
                 %% instantiate msk_modulation class
                 modulation_obj = msk_modulation(kk.("symbol_rate"), obj.fs, obj.hop_length * obj.hop_num);
