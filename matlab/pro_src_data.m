@@ -67,9 +67,9 @@ classdef pro_src_data
         end
 
         obj.package_sample_length = obj.package_length .* obj.package_number;
-        obj.slot_length_per = 0;
-
-        if obj.protocol_type == 'tdma' || obj.protocol_type == 'slotted_aloha'
+        obj.slot_length_per = [];
+        
+        if obj.protocol_type == "tdma" || obj.protocol_type == "slotted_aloha"
             if isempty(varargin)
                 thorw("parameter: slot_length is required \n")
             else
@@ -78,6 +78,7 @@ classdef pro_src_data
                 option_para_len = size(optional_para_name, 1);
                 obj.slot_length_per = optional_para.(optional_para_name(find(optional_para_name == "slot_length")));
             end
+
         end
 
         carrier_map = containers.Map();
@@ -87,7 +88,6 @@ classdef pro_src_data
             
             carrier = [];
             
-
             if size(obj.freq_pattern, 1) .* size(obj.freq_pattern, 2) == 1
                 carrier = complex_exponential_wave(obj.freq_pattern * 1e6, obj.fs, obj.package_sample_length(i)).sample_seq;
                 % carrier(obj.member_name(i)) = complex_exponential_wave(obj.freq_pattern * 1e6, obj.fs, obj.package_sample_length(i)).sample_seq;
@@ -114,8 +114,7 @@ classdef pro_src_data
             elseif kk.("mod") == "qam"
                 modulation_obj = qam_modulation(kk.("symbol_rate"), obj.fs, obj.package_sample_length(i), kk.("order"), carrier);
             end
-            
-
+        
             %% mapping : member_name -> msk_modulation class
             modulation_map(obj.member_name(i)) = modulation_obj;
             carrier_map(obj.member_name(i)) = carrier;
@@ -129,31 +128,56 @@ classdef pro_src_data
         obj.carrier = carrier_map;
 
         obj.src_signal = src_signal_map;
-        % size(src_signal)
+
         seq = obj.arrange();
         
         obj.seg_label = seq;
         obj.seg_label_sort = sort(seq, 2);
-        % seq(:, 1:3)
-        % sort(seq(:, 1:3), 2)
-        ss_vector = zeros(obj.member_num, round(1.1 * obj.sample_length));
-        for i = 1:1:length(obj.member_name)
-            seq_temp = [];
-            if i == 1
-                seq_temp = sort(seq(:, 1:(obj.package_number(i) .* ceil(obj.package_length ./ obj.slot_length_per))), 2);
-            else
-                seq_temp = sort(seq(:,                                                                  ...
-                sum(obj.package_number(1:i-1)) .* ceil(obj.package_length ./ obj.slot_length_per) + 1:  ...
-                sum(obj.package_number(1:i)) .* ceil(obj.package_length ./ obj.slot_length_per)), 2);
-            end
-            
-            for j = 1:1:size(seq_temp, 2)
-                ss_s = obj.src_signal(obj.member_name(i));
-                if j == 1
-                    ss_vector(i, seq_temp(1, j):seq_temp(2, j)) = ss_s(1:obj.slot_length_per);
 
+        ss_vector = zeros(obj.member_num, round(1.1 * obj.sample_length));
+
+        if isempty(obj.slot_length_per)
+
+            for i = 1:1:length(obj.member_name)
+                seq_temp = [];
+                if i == 1
+                    seq_temp = sort(seq(:, 1:(obj.package_number(i))), 2);
                 else
-                    ss_vector(i, seq_temp(1, j):seq_temp(2, j)) = ss_s((j - 1) * obj.slot_length_per : j * obj.slot_length_per - 1);
+                    seq_temp = sort(seq(:,               ...
+                    sum(obj.package_number(1:i-1)) + 1:  ...
+                    sum(obj.package_number(1:i))), 2);
+                end
+                
+                for j = 1:1:size(seq_temp, 2)
+                    ss_s = obj.src_signal(obj.member_name(i));
+                    if j == 1
+                        ss_vector(i, seq_temp(1, j):seq_temp(2, j)) = ss_s(1:max(obj.package_length));
+
+                    else
+                        ss_vector(i, seq_temp(1, j):seq_temp(2, j)) = ss_s((j - 1) * max(obj.package_length) : j * max(obj.package_length) - 1);
+                    end
+                end
+            end
+
+        else
+            for i = 1:1:length(obj.member_name)
+                seq_temp = [];
+                if i == 1
+                    seq_temp = sort(seq(:, 1:(obj.package_number(i) .* ceil(obj.package_length ./ obj.slot_length_per))), 2);
+                else
+                    seq_temp = sort(seq(:,                                                                  ...
+                    sum(obj.package_number(1:i-1)) .* ceil(obj.package_length ./ obj.slot_length_per) + 1:  ...
+                    sum(obj.package_number(1:i)) .* ceil(obj.package_length ./ obj.slot_length_per)), 2);
+                end
+                
+                for j = 1:1:size(seq_temp, 2)
+                    ss_s = obj.src_signal(obj.member_name(i));
+                    if j == 1
+                        ss_vector(i, seq_temp(1, j):seq_temp(2, j)) = ss_s(1:obj.slot_length_per);
+
+                    else
+                        ss_vector(i, seq_temp(1, j):seq_temp(2, j)) = ss_s((j - 1) * obj.slot_length_per : j * obj.slot_length_per - 1);
+                    end
                 end
             end
         end
@@ -170,9 +194,9 @@ classdef pro_src_data
             case 'slotted_aloha'
                 seq = obj.generate_label_table(1);
             case 'csma'
-
+                seq = obj.generate_label_table_for_package(0);
             case 'aloha'
-
+                seq = obj.generate_label_table_for_package(1);
             otherwise
                 throw("not supported protocol \n")
             end
@@ -183,38 +207,16 @@ classdef pro_src_data
         function label_table = generate_label_table(obj, occupied_flag)
             package_length2slot_num = ceil(obj.package_length ./ obj.slot_length_per);
             slot_number_in_sample = floor(obj.sample_length ./ obj.slot_length_per);
-            slot_number_in_sample = round(slot_number_in_sample * 1.05);
+            % slot_number_in_sample = ceil(obj.sample_length ./ obj.slot_length_per);
+            extend_serial = 1.005;
+            slot_number_in_sample = round(slot_number_in_sample * extend_serial);
 
             slot_label = [];
 
             start_stop_table = [];
             
             if occupied_flag
-                sum(obj.package_number)
                 slot_label = randi(slot_number_in_sample, [1, sum(package_length2slot_num' .* obj.package_number')]);
-                % slot_label = sort(slot_label)
-                slot_label_temp = [];
-
-                % for i = 1:1:length(slot_label)
-                %     cnt = 1;
-                    
-
-                %     slot_label_temp;
-                % end
-                % slot_map = containers.Map();
-                % slot_map(obj.member_name(1)) = slot_label(1:package_length2slot_num(1));
-                % for i = 2:1:length(obj.member_name)
-                %     slot_map(obj.member_name(i)) = slot_label(package_length2slot_num(i-1) + 1:package_length2slot_num(i-1) + package_length2slot_num(i));
-                % end
-
-                % for i = 1:1:length(obj.member_name)
-                %     if length(slot_map(obj.member_name(i))) == (package_length2slot_num(i) .* ceil(obj.package_length ./ obj.slot_length_per))
-                %         slot_label = [slot_label, slot_map(obj.member_name(i))];
-                %     else
-                %         while length(slot_map(obj.member_name(i))) == (package_length2slot_num(i) .* ceil(obj.package_length ./ obj.slot_length_per))
-                %         end
-                %     end
-                % end
             else
                 slot_label = randperm(slot_number_in_sample, sum(package_length2slot_num' .* obj.package_number'));
             end
@@ -227,15 +229,85 @@ classdef pro_src_data
                 end
 
             end
-            % start_stop_table = zeros(2, length(slot_label));
-
 
             label_table = start_stop_table;
 
-
-
         end
 
+
+        function label_table_for_package = generate_label_table_for_package(obj, occupied_flag)
+            package_len_max = max(obj.package_length);
+            package_number_in_sample = floor(obj.sample_length ./ package_len_max);
+            extend_serial = 1.005;
+            package_number_in_sample = round(package_number_in_sample * extend_serial);
+
+            package_label = [];
+            start_stop_table = [];
+            if occupied_flag
+                package_label = randi(package_number_in_sample, [1, sum(obj.package_number)]);
+
+                for i = 1:1:length(package_label)
+                    if package_label(i) == 1
+                        start_stop_table(:, i) = [0; 1] .* package_len_max + [1; 0];
+                    else
+                        start_stop_table(:, i) = [package_label(i) - 1; package_label(i)] .* package_len_max + [0; -1];
+                    end
+    
+                end
+            else
+                package_label = randperm(package_number_in_sample, sum(obj.package_number));
+                serial = 0.1;
+
+                for i = 1:1:length(package_label)
+                    if package_label(i) == 1
+                        start_stop_table(:, i) = [0; 1] .* package_len_max + [1; 0];
+                    else
+                        start_stop_table(:, i) = [package_label(i) - 1; package_label(i)] .* package_len_max + [0; -1];
+                    end
+                end
+
+                a = -1;
+                b = 1;
+                start_stop_table = sort(start_stop_table, 2);
+                if start_stop_table(1, 1) == 1
+                    n = sum(obj.package_number) - 1;
+                    flag = 1;
+                    index = [];
+                    while flag
+                        r = (b - a) .* rand(n, 1) + a;
+                        temp = round(start_stop_table(:, 2:end) + (1 + r') .* min(obj.package_length) .* serial);
+                        temp = [start_stop_table(:, 1), temp];
+                        for ii = 1:1:size(start_stop_table, 2) - 1
+                            index(ii) = temp(1, ii + 1) - temp(2, ii);
+                        end
+                        if sum(index >= 0) == sum(obj.package_number) - 1
+                            flag = 0;
+                            start_stop_table = temp;
+                        end
+                    end
+
+                else
+                    n = sum(obj.package_number);
+                    flag = 1;
+                    index = [];
+                    while flag
+                        r = (b - a) .* rand(n, 1) + a;
+                        temp = round(start_stop_table + (1 + r') .* min(obj.package_length) .* serial);
+                        for ii = 1:1:size(start_stop_table, 2) - 1
+                            index(ii) = temp(1, ii + 1) - temp(2, ii);
+                        end
+                        if sum(index >= 0) == sum(obj.package_number) - 1
+                            flag = 0;
+                            start_stop_table = temp;
+                        end
+                    end
+
+                end
+            end
+            
+
+            label_table_for_package = start_stop_table;
+        end
 
     end
 
