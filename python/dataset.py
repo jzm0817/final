@@ -182,7 +182,7 @@ def create_h5_file(root, **kwargs):
         path = "D:/workspace/art/data_h5"
     else:
         path_str = root.split('/')[:-3]
-        path = '/'
+        path = '/home/jzm/workspace/final/'
         for i in range(0, len(path_str)):
             path = os.path.join(path, path_str[i])
         path = os.path.join(path, "data_h5")
@@ -254,7 +254,13 @@ img.show()
 path_dict = get_dataset_path()
 pic_list = []   ### a list of torchvision.transforms.methodxx
 # create_h5_file(os.path.join(path_dict["path"], path_dict["dict"][0]), pic_trans = pic_list)
+
+### windows
 data = h5py_dataset(os.path.join("D:/workspace/art/data_h5", (path_dict["dict"][0] + '.hdf5')))
+
+### linux
+# data = dataset.h5py_dataset(os.path.join("/home/jzm/workspace/final/data_h5", (path_dict["dict"][0] + '.hdf5')))
+
 imag, data_type = data.__getitem__(0)
 dataset_scale = data.__len__()  
 print(dataset_scale)
