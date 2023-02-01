@@ -20,6 +20,7 @@ classdef pro_src_data
         slot_length_per;
         ss;
         seg_label;
+        seg_label_sort;
     end
 
     methods
@@ -132,13 +133,14 @@ classdef pro_src_data
         seq = obj.arrange();
         
         obj.seg_label = seq;
+        obj.seg_label_sort = sort(seq, 2);
         % seq(:, 1:3)
         % sort(seq(:, 1:3), 2)
-        ss_vector = zeros(obj.member_num, round(1.5 * obj.sample_length));
+        ss_vector = zeros(obj.member_num, round(1.1 * obj.sample_length));
         for i = 1:1:length(obj.member_name)
             seq_temp = [];
             if i == 1
-                seq_temp = sort(seq(:, 1:(obj.package_number(i) .* ceil(obj.package_length ./ obj.slot_length_per))), 2)
+                seq_temp = sort(seq(:, 1:(obj.package_number(i) .* ceil(obj.package_length ./ obj.slot_length_per))), 2);
             else
                 seq_temp = sort(seq(:,                                                                  ...
                 sum(obj.package_number(1:i-1)) .* ceil(obj.package_length ./ obj.slot_length_per) + 1:  ...
@@ -180,8 +182,8 @@ classdef pro_src_data
 
         function label_table = generate_label_table(obj, occupied_flag)
             package_length2slot_num = ceil(obj.package_length ./ obj.slot_length_per);
-            slot_number_in_sample = ceil(obj.sample_length ./ obj.slot_length_per);
-            slot_number_in_sample = round(slot_number_in_sample * 1.2);
+            slot_number_in_sample = floor(obj.sample_length ./ obj.slot_length_per);
+            slot_number_in_sample = round(slot_number_in_sample * 1.05);
 
             slot_label = [];
 
@@ -189,7 +191,7 @@ classdef pro_src_data
             
             if occupied_flag
                 sum(obj.package_number)
-                slot_label = randi(slot_number_in_sample, [1, sum(package_length2slot_num' .* obj.package_number')])
+                slot_label = randi(slot_number_in_sample, [1, sum(package_length2slot_num' .* obj.package_number')]);
                 % slot_label = sort(slot_label)
                 slot_label_temp = [];
 
