@@ -1,6 +1,19 @@
 clear;
 close all;
 
+cnt = 50;
+if ispc()
+    path = "D:/workspace/art/pic/protocol_training/";
+elseif isnuix()
+    path = "/home/jzm/final/pic/protocol_training/";
+end
+
+if ~exist(path)
+    mkdir(path);
+end
+
+protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
+
 package_len = [2000, 2000, 2000];
 mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_length", package_len(1), "package_number", 2), ...
 "mem1", struct("mod", "psk", "symbol_rate", 5e6, "order", 2, "package_length", package_len(2), "package_number", 1), ...
@@ -15,15 +28,8 @@ l = link16(mem_num, 5, 0, fs);
 freq = 969;
 
 sample_length = 40000;
-
-pro_type = "tdma";
-% pro_type = "slotted_aloha";
-% pro_type = 'aloha';
-% pro_type = 'csma';
 slot_len = 2000;
 slot_info = struct("slot_length", slot_len);
-ss = pro_src_data(fs, sample_length, freq, mod_para, pro_type, slot_info);
-src_signal = ss.ss;
 
 rayleighchan = comm.RayleighChannel(...
 'SampleRate',fs, ...
@@ -36,21 +42,39 @@ rayleighchan = comm.RayleighChannel(...
 'Seed',22, ...
 'PathGainsOutputPort',true);
 
-src_signal_fade = rayleighchan(ss.ss');
-
-src_signal_awgn = awgn(src_signal, 500);
-exist("src_signal_fade");
+channel = "awgn";
+snr = 1000;
 
 win_length = 256 * 2;
 dft_length = win_length * 2;
 win = hann(win_length);
 overlap_length = round(0.75 * win_length);
 
-sig_src_tfspec = stft(src_signal_awgn, fs, 'FFTLength', dft_length, ...
-'Window', win, 'Centered', false, 'OverlapLength', overlap_length);
-%%% draw source signal   (time-frequency domain)
+for i = 1:1:size(protocol_type, 2)
 
-contour(abs(sig_src_tfspec(1:win_length, :)));
-% figure off;
-% contour(abs(sig_src_tfspec))
+    for j = 1:1:cnt
+        ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{i}, slot_info);
+        if isempty(channel)
+            src_signal = ss.ss;
+        elseif channel == "awgn"
+            src_signal = awgn(ss.ss, snr);
+        elseif channel == "rayleigh"
+            src_signal = rayleighchan(ss.ss');
+        end
+        
+        sig_src_tfspec = stft(src_signal, fs, 'FFTLength', dft_length, ...
+        'Window', win, 'Centered', false, 'OverlapLength', overlap_length);
+        %%% draw source signal   (time-frequency domain)
+        figure('visible', 'off');
+        
+        % fig = figure;
+        contour(abs(sig_src_tfspec(1:win_length, :)));
+        axis off;
+        % frame = getframe(fig);
+        % img = frame2im(frame);
+        % imwrite(img, path + protocol_type{i} + '_' + string(j) + '.jpg')
+        saveas(gcf, path + lower(protocol_type{i}) + '_' + string(j) + '.jpg');
+    end
+end
+
 

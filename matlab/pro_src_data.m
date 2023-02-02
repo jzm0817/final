@@ -69,7 +69,7 @@ classdef pro_src_data
         obj.package_sample_length = obj.package_length .* obj.package_number;
         obj.slot_length_per = [];
         
-        if obj.protocol_type == "tdma" || obj.protocol_type == "slotted_aloha"
+        if obj.protocol_type == "tdma" || obj.protocol_type == "slottedaloha"
             if isempty(varargin)
                 thorw("parameter: slot_length is required \n")
             else
@@ -191,7 +191,7 @@ classdef pro_src_data
             switch obj.protocol_type
             case 'tdma'
                 seq = obj.generate_label_table(0);
-            case 'slotted_aloha'
+            case 'slottedaloha'
                 seq = obj.generate_label_table(1);
             case 'csma'
                 seq = obj.generate_label_table_for_package(0);
@@ -205,6 +205,7 @@ classdef pro_src_data
 
 
         function label_table = generate_label_table(obj, occupied_flag)
+
             package_length2slot_num = ceil(obj.package_length ./ obj.slot_length_per);
             slot_number_in_sample = floor(obj.sample_length ./ obj.slot_length_per);
             % slot_number_in_sample = ceil(obj.sample_length ./ obj.slot_length_per);
@@ -256,7 +257,7 @@ classdef pro_src_data
                 end
             else
                 package_label = randperm(package_number_in_sample, sum(obj.package_number));
-                serial = 0.1;
+                serial = 0.5;
 
                 for i = 1:1:length(package_label)
                     if package_label(i) == 1
