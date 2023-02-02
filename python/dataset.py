@@ -26,27 +26,17 @@ return:
      }
 '''
 
-def get_dataset_path(**kwargs):
+def get_dataset_path(path, **kwargs):
 
     if (len(kwargs) > 0) and ("print_ctr" in kwargs):
         print_flag = kwargs["print_ctr"]
     else:
         print_flag = 0
-
-    if (len(kwargs) > 0) and ("path" in kwargs):
-        origin_data_path = kwargs["path"]
-    else:
-        ###  pic path
-        origin_data_path_w = "D:/workspace/art/pic/stft_origin/"
-        origin_data_path_l = "/home/jzm/workspace/final/pic/stft_origin"
-
-        if platform.system() == 'Windows':
-            origin_data_path = origin_data_path_w
-        else:
-            origin_data_path = origin_data_path_l
    
+    origin_data_path = path
+
     if print_flag:
-        print(f'origin_data_path:', origin_data_path)
+        print(f'deal with:', origin_data_path)
 
     ###  get pic dictory 
     dict_name = []
@@ -92,17 +82,21 @@ class cls_dataset(Dataset):
             self.trans_ctr_list = kwargs["pic_trans"]
         else:
             self.trans_ctr_list = []
+
         self.transform = transforms.Compose(self.trans_ctr_list)
         self.set = []
 
+        print(self.root)
         for cur_dir, dirs, files in os.walk(self.root):
             for file in files:
                 pic = read_image(os.path.join(cur_dir, file))
                 pic = self.transform(pic)
+                temp = file.split('.')[0]
                 info = {
                     'image' : pic,
-                    'type'  : self.root.split('/')[-1]
+                    'type'  : temp.split('_')[0]
                 }
+
                 self.set.append(info)
     
     def __getitem__(self, index):
@@ -191,7 +185,7 @@ def create_h5_file(root, **kwargs):
         os.makedirs(path)
     file_name = root.split('/')[-1] + '.hdf5'
     save_path = path + '/' + file_name
-    print(save_path)
+    print(f'h5file save_path:', save_path)
     data_set_data = []
     data_set_type = []
     if os.path.exists(save_path):
@@ -200,12 +194,16 @@ def create_h5_file(root, **kwargs):
     h5_file = h5py.File(save_path, "w")
 
     for cur_dir, dirs, files in os.walk(root):
+        
+        a = files[0].split('.')[0]
+
         for file in files:
             pic = read_image(os.path.join(cur_dir, file))
             pic = transform(pic)
             pic = np.array(pic).astype(np.float64)
             data_set_data.append(pic)
-            data_set_type.append(root.split('/')[-1])
+            temp = file.split('.')[0]
+            data_set_type.append(temp.split('_')[0])
 
     h5_file.create_dataset("image", data = data_set_data)
     h5_file.create_dataset("type", data = data_set_type)

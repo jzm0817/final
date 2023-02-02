@@ -8,12 +8,12 @@ import platform
 
 system_name = platform.system()
 if system_name == "Windows":
-    path = "D:/workspace/art/pic/protocol/"
+    pic_path = "D:/workspace/art/pic/protocol/"
 elif system_name == "Linux":
-    path = "/home/jzm/workspace/final/pic/protocol/"
+    pic_path = "/home/jzm/workspace/final/pic/protocol/"
 
 
-path_dict = dataset.get_dataset_path(path=path, print_ctr=1)
+pic_path_dict = dataset.get_dataset_path(pic_path, print_ctr=1)
 # pic_list = [
 #         # transforms.Resize((96 * 2,96 * 2)),
 #         # transforms.CenterCrop((400,400)),
@@ -23,23 +23,32 @@ path_dict = dataset.get_dataset_path(path=path, print_ctr=1)
 #     ]  
 ### a list of torchvision.transforms.methodxx
 
-pic_list = [];
-dataset.create_h5_file(os.path.join(path_dict["path"], path_dict["dict"][0]), pic_trans = pic_list)
 
-if platform.system() == 'Windows':
-    path = 'D:/workspace/art/data_h5'
+if platform.system() == "Windows":
+    h5file_path = "D:/workspace/art/data_h5"
 else:
-    path = '/home/jzm/workspace/final/data_h5'
+    h5file_path = "/home/jzm/workspace/final/data_h5"
 
+pic_list = []
+data_set_dick = {}
 
-data = dataset.h5py_dataset(os.path.join(path, (path_dict["dict"][0] + '.hdf5')))
-imag, data_type = data.__getitem__(0)
-dataset_scale = data.__len__()  
-print(dataset_scale)
-print(imag.shape)      ### for RGB pic: (3, x, y)
-print(type(imag))      ### type:numpy.ndarray
-### show picture
-imag = imag.transpose(1, 2, 0)   ### change (3, x, y) to (x, y, 3)
-print(imag.shape)
-plt.imshow(imag.astype('uint8'))
-plt.show()  
+for kk in range(0, len(pic_path_dict)):
+    if not os.path.exists(h5file_path + '/' + pic_path_dict["dict"][kk] + ".hdf5"):
+    # if True:
+        dataset.create_h5_file(os.path.join(pic_path_dict["path"], pic_path_dict["dict"][kk]), pic_trans = pic_list)
+
+    data_set_dick[pic_path_dict["dict"][kk]] = \
+            dataset.h5py_dataset(os.path.join(h5file_path, (pic_path_dict["dict"][kk] + ".hdf5")))
+    # data = dataset.h5py_dataset(os.path.join(h5file_path, (pic_path_dict["dict"][kk] + ".hdf5")))
+    imag, data_type = data_set_dick[pic_path_dict["dict"][kk]].__getitem__(40)
+    dataset_scale = data_set_dick[pic_path_dict["dict"][kk]].__len__()  
+    # print(dataset_scale)
+    # print(imag.shape)      ### for RGB pic: (3, x, y)
+    # print(type(imag))      ### type:numpy.ndarray
+    # ### show picture
+    # imag = imag.transpose(1, 2, 0)   ### change (3, x, y) to (x, y, 3)
+    # # print(imag.shape)
+    # plt.imshow(imag.astype('uint8'))
+    # plt.show()  
+    print(f'{pic_path_dict["dict"][kk]} dataset_scale: {dataset_scale}')
+    print(f'{pic_path_dict["dict"][kk]} data_type: {data_type}')
