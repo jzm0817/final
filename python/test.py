@@ -6,8 +6,14 @@ from torchvision.transforms import ToPILImage
 import matplotlib.pyplot as plt
 import platform
 
-path = "/home/jzm/workspace/final/pic/protocol"
-path_dict = dataset.get_dataset_path(path=path)
+system_name = platform.system()
+if system_name == "Windows":
+    path = "D:/workspace/art/pic/protocol/"
+elif system_name == "Linux":
+    path = "/home/jzm/workspace/final/pic/protocol/"
+
+
+path_dict = dataset.get_dataset_path(path=path, print_ctr=1)
 # pic_list = [
 #         # transforms.Resize((96 * 2,96 * 2)),
 #         # transforms.CenterCrop((400,400)),
