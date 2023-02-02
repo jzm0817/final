@@ -6,6 +6,7 @@ from torchvision.transforms import ToPILImage
 import matplotlib.pyplot as plt
 import platform
 import numpy as np
+import random
 
 system_name = platform.system()
 if system_name == "Windows":
@@ -42,17 +43,24 @@ for kk in range(0, len(pic_path_dict)):
     data_set_dick[pic_path_dict["dict"][kk]] = \
             dataset.h5py_dataset(os.path.join(h5file_path, (pic_path_dict["dict"][kk] + ".hdf5")))
     # data = dataset.h5py_dataset(os.path.join(h5file_path, (pic_path_dict["dict"][kk] + ".hdf5")))
-    imag, data_type = data_set_dick[pic_path_dict["dict"][kk]].__getitem__(40)
-    data_type = data_type_dict[np.int16(data_type.numpy())]
+
     dataset_scale = data_set_dick[pic_path_dict["dict"][kk]].__len__()
 
+    pic_index = int(np.random.randint(0, dataset_scale - 1, 1))
+
+    imag, data_type = data_set_dick[pic_path_dict["dict"][kk]].__getitem__(pic_index)
+    data_type = data_type_dict[np.int16(data_type.numpy())]
+
+    print(f'number of picture: {pic_index}')
+    print(f'data from: {pic_path_dict["dict"][kk]}')
+    print(f'data type: {data_type}')
     # print(dataset_scale)
     # print(imag.shape)      ### for RGB pic: (3, x, y)
     # print(type(imag))      ### type:numpy.ndarray
     # ### show picture
-    # imag = imag.transpose(1, 2, 0)   ### change (3, x, y) to (x, y, 3)
-    # # print(imag.shape)
-    # plt.imshow(imag.astype('uint8'))
-    # plt.show()  
-    print(f'{pic_path_dict["dict"][kk]} dataset_scale: {dataset_scale}')
-    print(f'{pic_path_dict["dict"][kk]} data_type: {data_type}')
+    imag = imag.transpose(1, 2, 0)   ### change (3, x, y) to (x, y, 3)
+    # print(imag.shape)
+    plt.imshow(imag.astype('uint8'))
+    plt.show()  
+    # print(f'{pic_path_dict["dict"][kk]} dataset_scale: {dataset_scale}')
+    
