@@ -11,8 +11,8 @@ if ispc()
     if ~exist(para_path)
         thorw("parameter dictory not exist \n");
     end
-elseif isnuix()
-    para_path = "/home/jzm/final/data_info_mat/";
+elseif isunix()
+    para_path = "/home/jzm/workspace/final/data_info_mat/";
     if ~exist(para_path)
         thorw("parameter dictory not exist \n");
     end
@@ -27,8 +27,8 @@ for i = 1:1:size(file_name, 3)
 
     if ispc()
         save_pic_path= "D:/workspace/art/pic/" + t_type + data_type + "_" + para_info; 
-    elseif isnuix()
-        save_pic_path = "/home/jzm/final/data_info_mat/" + t_type + data_type + "_" + para_info;
+    elseif isunix()
+        save_pic_path = "/home/jzm/workspace/final/pic/" + t_type + data_type + "_" + para_info;
     end
 
     if exist(save_pic_path)
