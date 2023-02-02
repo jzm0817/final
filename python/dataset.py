@@ -182,16 +182,16 @@ def create_h5_file(root, **kwargs):
         path = "D:/workspace/art/data_h5"
     else:
         path_str = root.split('/')[:-3]
-        path = '/home/jzm/workspace/final/'
-        for i in range(0, len(path_str)):
-            path = os.path.join(path, path_str[i])
-        path = os.path.join(path, "data_h5")
+        path = '/home/jzm/workspace/final/data_h5'
+        # for i in range(0, len(path_str)):
+        #     path = os.path.join(path, path_str[i])
+        # path = os.path.join(path, "data_h5")
 
     if not(os.path.exists(path)):
         os.makedirs(path)
     file_name = root.split('/')[-1] + '.hdf5'
     save_path = path + '/' + file_name
-
+    print(save_path)
     data_set_data = []
     data_set_type = []
     if os.path.exists(save_path):

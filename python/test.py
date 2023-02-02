@@ -6,16 +6,19 @@ from torchvision.transforms import ToPILImage
 import matplotlib.pyplot as plt
 import platform
 
-path_dict = dataset.get_dataset_path()
-pic_list = [
-        # transforms.Resize((96 * 2,96 * 2)),
-        # transforms.CenterCrop((400,400)),
-        transforms.ConvertImageDtype(torch.double),
-        transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
-        # transforms.Grayscale()
-    ]  
+path = "/home/jzm/workspace/final/pic/protocol"
+path_dict = dataset.get_dataset_path(path=path)
+# pic_list = [
+#         # transforms.Resize((96 * 2,96 * 2)),
+#         # transforms.CenterCrop((400,400)),
+#         transforms.ConvertImageDtype(torch.double),
+#         transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
+#         # transforms.Grayscale()
+#     ]  
 ### a list of torchvision.transforms.methodxx
-# dataset.create_h5_file(os.path.join(path_dict["path"], path_dict["dict"][0]), pic_trans = pic_list)
+
+pic_list = [];
+dataset.create_h5_file(os.path.join(path_dict["path"], path_dict["dict"][0]), pic_trans = pic_list)
 
 if platform.system() == 'Windows':
     path = 'D:/workspace/art/data_h5'
