@@ -5,6 +5,7 @@ import dataset
 from torchvision.transforms import ToPILImage
 import matplotlib.pyplot as plt
 import platform
+import numpy as np
 
 system_name = platform.system()
 if system_name == "Windows":
@@ -31,6 +32,7 @@ else:
 
 pic_list = []
 data_set_dick = {}
+data_type_dict = {0:"tdma", 1:"aloha", 2:"csma", 3:"slottedaloha"}
 
 for kk in range(0, len(pic_path_dict)):
     if not os.path.exists(h5file_path + '/' + pic_path_dict["dict"][kk] + ".hdf5"):
@@ -41,7 +43,9 @@ for kk in range(0, len(pic_path_dict)):
             dataset.h5py_dataset(os.path.join(h5file_path, (pic_path_dict["dict"][kk] + ".hdf5")))
     # data = dataset.h5py_dataset(os.path.join(h5file_path, (pic_path_dict["dict"][kk] + ".hdf5")))
     imag, data_type = data_set_dick[pic_path_dict["dict"][kk]].__getitem__(40)
-    dataset_scale = data_set_dick[pic_path_dict["dict"][kk]].__len__()  
+    data_type = data_type_dict[np.int16(data_type.numpy())]
+    dataset_scale = data_set_dick[pic_path_dict["dict"][kk]].__len__()
+
     # print(dataset_scale)
     # print(imag.shape)      ### for RGB pic: (3, x, y)
     # print(type(imag))      ### type:numpy.ndarray

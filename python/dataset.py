@@ -87,6 +87,8 @@ class cls_dataset(Dataset):
         self.set = []
 
         print(self.root)
+        type_dict = {"tdma":0, "aloha":1, "csma":2, "slottedaloha":3}
+
         for cur_dir, dirs, files in os.walk(self.root):
             for file in files:
                 pic = read_image(os.path.join(cur_dir, file))
@@ -94,7 +96,7 @@ class cls_dataset(Dataset):
                 temp = file.split('.')[0]
                 info = {
                     'image' : pic,
-                    'type'  : temp.split('_')[0]
+                    'type'  : torch.tensor(type_dict[temp.split('_')[0]])
                 }
 
                 self.set.append(info)
@@ -228,8 +230,11 @@ class h5py_dataset(Dataset):
         self.file = file
 
     def __getitem__(self, index):
+        type_dict = {"tdma":0, "aloha":1, "csma":2, "slottedaloha":3}
         with h5py.File(self.file, 'r') as f:
-            return f['image'][index], f['type'][index].decode()
+            target = f['type'][index].decode()
+            label = torch.tensor(type_dict[target])
+            return f['image'][index], label
 
     def __len__(self):
         with h5py.File(self.file, 'r') as f:
