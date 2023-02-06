@@ -96,7 +96,7 @@ class cls_dataset(Dataset):
                 temp = file.split('.')[0]
                 info = {
                     'image' : pic,
-                    'type'  : torch.tensor(type_dict[temp.split('_')[0]])
+                    'label'  : torch.tensor(type_dict[temp.split('_')[0]])
                 }
 
                 self.set.append(info)
@@ -172,6 +172,14 @@ def create_h5_file(root, **kwargs):
         trans_ctr_list = kwargs["pic_trans"]
     else:
         trans_ctr_list = []
+    
+    if "pic_size" in kwargs:
+        pic_size = kwargs["pic_size"]
+    else:
+        pic_size = [656, 875]
+    
+    h5file_suffix = '_' + str(pic_size[0]) + 'x' + str(pic_size[1])
+
     transform = transforms.Compose(trans_ctr_list)
 
     if platform.system() == 'Windows':
@@ -185,7 +193,7 @@ def create_h5_file(root, **kwargs):
 
     if not(os.path.exists(path)):
         os.makedirs(path)
-    file_name = root.split('/')[-1] + '.hdf5'
+    file_name = root.split('/')[-1] + h5file_suffix + '.hdf5'
     save_path = path + '/' + file_name
     print(f'h5file save_path:', save_path)
     data_set_data = []
@@ -194,10 +202,11 @@ def create_h5_file(root, **kwargs):
         os.remove(save_path)
 
     h5_file = h5py.File(save_path, "w")
-
+    print(root)
     for cur_dir, dirs, files in os.walk(root):
         
         a = files[0].split('.')[0]
+        print(a)
 
         for file in files:
             pic = read_image(os.path.join(cur_dir, file))
@@ -208,7 +217,7 @@ def create_h5_file(root, **kwargs):
             data_set_type.append(temp.split('_')[0])
 
     h5_file.create_dataset("image", data = data_set_data)
-    h5_file.create_dataset("type", data = data_set_type)
+    h5_file.create_dataset("label", data = data_set_type)
     h5_file.close()  
     print(f'finish complete:', save_path.split('/')[-1])  
 
@@ -232,7 +241,7 @@ class h5py_dataset(Dataset):
     def __getitem__(self, index):
         type_dict = {"tdma":0, "aloha":1, "csma":2, "slottedaloha":3}
         with h5py.File(self.file, 'r') as f:
-            target = f['type'][index].decode()
+            target = f['label'][index].decode()
             label = torch.tensor(type_dict[target])
             return f['image'][index], label
 
