@@ -16,6 +16,7 @@ import numpy as np
 
 def create_h5dataset(**kwargs):
     pic_path_dict = path.get_dataset_path(path.pic_path)
+    print(pic_path_dict)
 
     flag = False
     if len(pic_path_dict["dict"]) == 0:
