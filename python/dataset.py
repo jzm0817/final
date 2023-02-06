@@ -11,44 +11,6 @@ from torchvision.transforms import ToPILImage
 import h5py
 import matplotlib.pyplot as plt
 
-'''
-fun:
-      find dictory with picture in default path or input path
-      default path: origin_data_path_w for windows
-                    origin_data_path_l for linux
-para:
-    print_ctr  -->
-    path       -->
-return:
-    {
-        path:xx      string
-        dict:xxx     list
-     }
-'''
-
-def get_dataset_path(path, **kwargs):
-
-    if (len(kwargs) > 0) and ("print_ctr" in kwargs):
-        print_flag = kwargs["print_ctr"]
-    else:
-        print_flag = 0
-   
-    origin_data_path = path
-
-    if print_flag:
-        print(f'deal with:', origin_data_path)
-
-    ###  get pic dictory 
-    dict_name = []
-    for cur_dir, dirs, files in os.walk(origin_data_path):
-        if (str(files) != '[]'):
-            file_name = cur_dir.split('/')[-1]
-            dict_name.append(file_name)
-
-    if print_flag:
-        print(f'pic dictory:', dict_name)
-
-    return {"path":origin_data_path, "dict":dict_name}
 
 '''
 fun: generate cls_dataset according to root or input para (option) 
@@ -145,7 +107,7 @@ def load_dataset(path, **kwargs):
     if show_pic:
         if (len(kwargs) > 0) and ("index" in kwargs):
             pic_index = kwargs["index"]
-            print(pic_index)
+            # print(pic_index)
             ### show picture
             for i in range(0, len(pic_index)):
                 p = data_set.__getitem__(pic_index[i])['image']
@@ -195,19 +157,16 @@ def create_h5_file(root, **kwargs):
         os.makedirs(path)
     file_name = root.split('/')[-1] + h5file_suffix + '.hdf5'
     save_path = path + '/' + file_name
-    print(f'h5file save_path:', save_path)
+    # print(f'h5file save_path:', save_path)
     data_set_data = []
     data_set_type = []
     if os.path.exists(save_path):
         os.remove(save_path)
 
     h5_file = h5py.File(save_path, "w")
-    print(root)
+    # print(root)
     for cur_dir, dirs, files in os.walk(root):
-        
-        a = files[0].split('.')[0]
-        print(a)
-
+        # a = files[0].split('.')[0]
         for file in files:
             pic = read_image(os.path.join(cur_dir, file))
             pic = transform(pic)

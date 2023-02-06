@@ -14,7 +14,7 @@ nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
             ('relu2', nn.ReLU(inplace=True)),
             ('dropout1', nn.Dropout2d()),
             ('flatten1', nn.Flatten(start_dim=1)),
-            ('affine1', nn.Linear(20 * 93 * 93, 50)),
+            ('affine1', nn.Linear(20 * 45 * 45, 50)),
             ('affine2', nn.Linear(50, 10)),
             ('affine3', nn.Linear(10, 4)),
             ]
@@ -63,6 +63,6 @@ class Net(nn.Module):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # PyTorch v0.4.0
 model = Net().to(device)
  
-summary(model, (3, 384, 384))
+summary(model, (3, 96 * 2, 96 * 2))
 
 

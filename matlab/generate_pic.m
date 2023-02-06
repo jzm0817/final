@@ -41,6 +41,7 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
             % img = frame2im(frame);
             % imwrite(img, path + protocol_type{i} + '_' + string(j) + '.jpg')
             saveas(gcf, path + lower(protocol_type{i}) + '_' + string(j) + ".jpg");
+            clear gcf;
         end
 
     end

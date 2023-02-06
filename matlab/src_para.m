@@ -3,8 +3,8 @@ clear;
 close all;
 
 save2mat = 1;
-index = 2;
-pic_number = 200;
+index = 0;
+pic_number = 2000;
 data_type = "training";
 % data_type = "test";
 
