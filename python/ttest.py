@@ -18,8 +18,11 @@ import numpy as np
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-data_set_dict = ds.create_h5dataset(pic_size=par.pic_size, pic_list=par.pic_list)
-para_index = 1
+data_set_dict = ds.create_h5dataset(pic_size=par.pic_size, pic_list=par.pic_list)     ###
+# data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
+
+print(data_set_dict.keys())
+para_index = 0
 data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
 
 print(f'data_set_training length:{data_set_training.__len__()}')
@@ -29,6 +32,7 @@ batch_size = 4
 data_set_training = DataLoader(data_set_training, batch_size=batch_size, shuffle=True)
 data_set_test = DataLoader(data_set_test, batch_size=batch_size, shuffle=True)
 
+
 model = net.convnn()
 
 model.to(device)
@@ -37,7 +41,7 @@ loss_fn = nn.CrossEntropyLoss()
 
 EPOCH = 100
 
-train_flag = False
+train_flag = True
 loss_all = []
 
 trained_name = '_' + 'epoch' + str(EPOCH) + '_'+ 'para' + str(para_index) + par.h5file_suffix
