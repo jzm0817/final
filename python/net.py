@@ -65,7 +65,7 @@ def train(model, data_set_training, optimizer, loss_fn, epoch, device):
     return loss_total
 
 
-def test(model, data_set_test, device):
+def test(model, data_set_test, device, bs):
     model.eval()
 
     correct = 0
@@ -98,6 +98,6 @@ def test(model, data_set_test, device):
 
         correct += (pred.argmax(1) == label).type(torch.float).sum().item()
     
-    print(f'accurency = {correct}/{len(data_set_test)*4} = {correct/len(data_set_test)/4}')
+    print(f'accurency = {correct}/{len(data_set_test)*bs} = {correct/len(data_set_test)/bs}')
 
 

@@ -28,7 +28,7 @@ data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
 print(f'data_set_training length:{data_set_training.__len__()}')
 print(f'data_set_test length:{data_set_test.__len__()}')
 
-batch_size = 4
+batch_size = 8
 data_set_training = DataLoader(data_set_training, batch_size=batch_size, shuffle=True)
 data_set_test = DataLoader(data_set_test, batch_size=batch_size, shuffle=True)
 
@@ -44,7 +44,7 @@ EPOCH = 100
 train_flag = True
 loss_all = []
 
-trained_name = '_' + 'epoch' + str(EPOCH) + '_'+ 'para' + str(para_index) + par.h5file_suffix
+trained_name = '_' + 'epoch' + str(EPOCH) + '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "bs" + str(batch_size)
 
 if train_flag:
     for epoch in range(EPOCH):
@@ -66,6 +66,6 @@ if train_flag:
 model = net.convnn()            
 model.load_state_dict(torch.load(f"{path.trainednet_path}/{model.__class__.__name__ + trained_name}.pth"))
 model.to(device)
-net.test(model, data_set_test, device)
+net.test(model, data_set_test, device, batch_size)
 
 
