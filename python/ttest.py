@@ -21,7 +21,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 data_set_dict = ds.create_h5dataset(pic_size=par.pic_size, pic_list=par.pic_list)     ###
 # data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
 
-print(data_set_dict.keys())
+# print(data_set_dict.keys())
 para_index = 0
 data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
 
@@ -39,9 +39,9 @@ model.to(device)
 optimizer = optim.SGD(model.parameters(), lr=1e-4, momentum=0.5)
 loss_fn = nn.CrossEntropyLoss()
 
-EPOCH = 100
+EPOCH = 10
 
-train_flag = True
+train_flag = True  
 loss_all = []
 
 trained_name = '_' + 'epoch' + str(EPOCH) + '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "bs" + str(batch_size)
@@ -66,6 +66,6 @@ if train_flag:
 model = net.convnn()            
 model.load_state_dict(torch.load(f"{path.trainednet_path}/{model.__class__.__name__ + trained_name}.pth"))
 model.to(device)
-net.test(model, data_set_test, device, batch_size)
+net.test(model, data_set_test, device, batch_size, trained_name)
 
 

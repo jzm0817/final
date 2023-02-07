@@ -1,9 +1,19 @@
 
+import path
+import par
+from plotcm import plot_confusion_matrix
+
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as file
 import torchvision
 from collections import OrderedDict
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+
+
 
 nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
@@ -65,12 +75,14 @@ def train(model, data_set_training, optimizer, loss_fn, epoch, device):
     return loss_total
 
 
-def test(model, data_set_test, device, bs):
+def test(model, data_set_test, device, bs, trained_name):
     model.eval()
 
     correct = 0
     real_label = []
     pred_label = []
+    bs = 0
+
     for ii, data in enumerate(data_set_test):
 
         if isinstance(data, list):
@@ -87,17 +99,39 @@ def test(model, data_set_test, device, bs):
             output = model(image)
             pred = nn.Softmax(dim=1)(output)
         
+        real_label.append(label.cpu().numpy())
+        pred_label.append(pred.argmax(1).cpu().numpy())
 
-        real_label.append(label.cpu().numpy().tolist())
-        pred_label.append(pred.argmax(1).cpu().numpy().tolist())
-
-        if ii == 1:
-            print(f'label:{len(real_label)}')
-            print(f'label.numpy():{real_label}')
-            print(f'pred.argmax(1):{pred_label}')
+        if ii == 0:
+            bs = len(label.cpu().numpy().tolist())
+            # print(f'label:{len(real_label)}')
+            # print(f'label.numpy():{real_label}')
+            # print(f'pred.argmax(1):{pred_label}')
 
         correct += (pred.argmax(1) == label).type(torch.float).sum().item()
-    
-    print(f'accurency = {correct}/{len(data_set_test)*bs} = {correct/len(data_set_test)/bs}')
+
+    real_label = np.array(real_label)
+    pred_label = np.array(pred_label)
+
+    stacked = torch.stack((torch.tensor(real_label.flatten(), dtype=torch.int64), torch.tensor(pred_label.flatten(), dtype=torch.int64)), dim=1)
+    # print(stacked[0:7, :])
+    names = list(par.data_type_dict.values())
+    # print(names)
+   
+    cm = torch.zeros(len(par.data_type_dict), len(par.data_type_dict), dtype=torch.int64)
+    for p in stacked:
+        tl, pl = p.tolist()
+        cm[tl, pl] = cm[tl, pl] + 1
+    # print(cm)
+    plot_confusion_matrix(cm, names)
+    pres = "cm_"
+    plt.savefig(f"{path.trainednet_path}/{pres + model.__class__.__name__ + trained_name}.png")
+    # plt.show()
+    # print(f'stacked.shape:{stacked.shape}')
+    # print(f'len(real_label):{len(real_label)}') 
+    # print(f'len(real_label):{len(real_label)}') 
+    print(f'accurency = {correct}/{len(data_set_test) * bs} = {correct/len(data_set_test)/bs}')
+
+
 
 
