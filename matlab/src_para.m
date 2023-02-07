@@ -10,8 +10,8 @@ data_type = "training";
 
 if ispc()
     para_path = "D:/workspace/art/data_info_mat/";
-elseif isnuix()
-    para_path = "/home/jzm/final/data_info_mat/";
+elseif isunix()
+    para_path = "/home/jzm/workspace/final/data_info_mat/";
 end
 
 protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};

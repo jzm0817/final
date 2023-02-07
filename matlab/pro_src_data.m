@@ -209,7 +209,7 @@ classdef pro_src_data
             package_length2slot_num = ceil(obj.package_length ./ obj.slot_length_per);
             slot_number_in_sample = floor(obj.sample_length ./ obj.slot_length_per);
             % slot_number_in_sample = ceil(obj.sample_length ./ obj.slot_length_per);
-            extend_serial = 1.005;
+            extend_serial = 1.1;
             slot_number_in_sample = round(slot_number_in_sample * extend_serial);
 
             slot_label = [];
@@ -239,25 +239,30 @@ classdef pro_src_data
         function label_table_for_package = generate_label_table_for_package(obj, occupied_flag)
             package_len_max = max(obj.package_length);
             package_number_in_sample = floor(obj.sample_length ./ package_len_max);
-            extend_serial = 1.005;
+            extend_serial = 1.1;
             package_number_in_sample = round(package_number_in_sample * extend_serial);
 
             package_label = [];
             start_stop_table = [];
+            serial = 0.5;
             if occupied_flag
                 package_label = randi(package_number_in_sample, [1, sum(obj.package_number)]);
-
+                a = -1;
+                b = 1;
                 for i = 1:1:length(package_label)
                     if package_label(i) == 1
                         start_stop_table(:, i) = [0; 1] .* package_len_max + [1; 0];
                     else
+                        r = (b - a) .* rand(1, 1) + a;
                         start_stop_table(:, i) = [package_label(i) - 1; package_label(i)] .* package_len_max + [0; -1];
+                        temp = round(start_stop_table(:, i) + (1 + r') .* min(obj.package_length) .* serial);
+                        start_stop_table(:, i) = temp;
                     end
     
                 end
             else
                 package_label = randperm(package_number_in_sample, sum(obj.package_number));
-                serial = 0.5;
+
 
                 for i = 1:1:length(package_label)
                     if package_label(i) == 1
