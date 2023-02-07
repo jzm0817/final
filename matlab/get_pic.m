@@ -1,6 +1,6 @@
 
-clear;
-close all;
+% clear;
+% close all;
 
 t_type = "protocol";
 data_type = "test";
