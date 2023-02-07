@@ -6,12 +6,13 @@ if platform.system() == "Windows":
     pic_path = "D:/workspace/art/pic/protocol/"
     h5file_path = "D:/workspace/art/data_h5"
     trainednet_path = "D:/workspace/art/net"
+    nnpar_path = "D:/workspace/art/nninfo"
 
 elif platform.system() == "Linux":
     pic_path = "/home/jzm/workspace/final/pic/protocol/"
     h5file_path = "/home/jzm/workspace/final/data_h5"
     trainednet_path = "/home/jzm/workspace/final/net"
-
+    nnpar_path = "/home/jzm/workspace/final/nninfo"
 
 '''
 fun:

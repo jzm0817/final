@@ -14,75 +14,67 @@ from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 
 
+class trainpar():
+    def __init__(self, batch_size, learning_rate, epoch,  nn_list):
+        self.bs = batch_size
+        self.lr = learning_rate
+        self.epoch = epoch
+        self.nn_list = nn_list
+
+
+# ch_in = 32
+# reduction = 16
+
+# se_list = [
+#     ("affine1", nn.Linear(ch_in, ch_in // reduction, bias=False)),
+#     ("relu1", nn.ReLU(inplace=True)),
+#     ("affine2", nn.Linear(ch_in // reduction, ch_in, bias = False)),
+#     ("sigmoid", nn.Sigmoid()) 
+# ]
+
+
+# class se_block(nn.Module):
+#     def __init__(self, ch_in, reduction=16):
+#         super(se_block, self).__init__()
+#         self.avg_pool = nn.AdaptiveAvgPool2d(1)
+#         self.fc = nn.Sequential(se_list)
+
+#     def forward(self, x):
+#         b, c, _, _ = x.size()
+#         y = self.avg_pool(x).view(b, c)
+#         y = self.fc(y).view(b, c, 1, 1)
+#         return x * y.expand_as(x)
+
+
+# se_list = OrderedDict(se_list)
+
+# se = se_block(ch_in)
 
 # nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
 #             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
 #             ('relu1', nn.ReLU(inplace=True)),
-#             ('conv2', nn.Conv2d(10, 20, kernel_size=5)),
+#             ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
 #             ('max_pool2', nn.MaxPool2d(kernel_size=2)),
 #             ('relu2', nn.ReLU(inplace=True)),
 #             ('dropout1', nn.Dropout2d()),
+#             ('se_block', se),
 #             ('flatten1', nn.Flatten(start_dim=1)),
-#             ('affine1', nn.Linear(20 * 45 * 45, 50)),
+#             ('affine1', nn.Linear(32 * 45 * 45, 50)),
 #             ('affine2', nn.Linear(50, 10)),
 #             ('affine3', nn.Linear(10, 4)),
 #             ]
 
-ch_in = 32
-reduction = 16
+# nn_list = OrderedDict(nn_list)
 
-se_list = [
-    ("affine1", nn.Linear(ch_in, ch_in // reduction, bias=False)),
-    ("relu1", nn.ReLU(inplace=True)),
-    ("affine2", nn.Linear(ch_in // reduction, ch_in, bias = False)),
-    ("sigmoid", nn.Sigmoid()) 
-]
+class neuralnetwork(nn.Module):
 
-
-class se_block(nn.Module):
-    def __init__(self, ch_in, reduction=16):
-        super(se_block, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Sequential(se_list)
-
-    def forward(self, x):
-        b, c, _, _ = x.size()
-        y = self.avg_pool(x).view(b, c)
-        y = self.fc(y).view(b, c, 1, 1)
-        return x * y.expand_as(x)
-
-
-se_list = OrderedDict(se_list)
-
-se = se_block(ch_in)
-
-nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
-            ('max_pool1', nn.MaxPool2d(kernel_size=2)),
-            ('relu1', nn.ReLU(inplace=True)),
-            ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
-            ('max_pool2', nn.MaxPool2d(kernel_size=2)),
-            ('relu2', nn.ReLU(inplace=True)),
-            ('dropout1', nn.Dropout2d()),
-            # ('se_block', se),
-            ('flatten1', nn.Flatten(start_dim=1)),
-            ('affine1', nn.Linear(32 * 45 * 45, 50)),
-            ('affine2', nn.Linear(50, 10)),
-            ('affine3', nn.Linear(10, 4)),
-            ]
-
-nn_list = OrderedDict(nn_list)
-
-class convnn(nn.Module):
-
-    def __init__(self):
+    def __init__(self, nn_list):
         super().__init__()
-        self.flatten = nn.Flatten()
-        self.nn_conv = nn.Sequential(nn_list)
+        self.nn_list = nn_list
+        self.ann = nn.Sequential(self.nn_list)
     
     def forward(self, x):
-        # x = self.flatten(x)
-        logits = self.nn_conv(x)
-        return logits
+        return self.ann(x)
 
 
 
@@ -168,10 +160,10 @@ def test(model, data_set_test, device, bs, trained_name):
     plot_confusion_matrix(cm, names, normalize=True)
     pres = "cm_"
     output_str = "_normal"
-    plt.savefig(f"{path.trainednet_path}/{pres + model.__class__.__name__ + trained_name + output_str}.png")
+    plt.savefig(f"{path.trainednet_path}/{pres}nn{trained_name + output_str}.png")
     plt.figure()
     plot_confusion_matrix(cm, names)
-    plt.savefig(f"{path.trainednet_path}/{pres + model.__class__.__name__ + trained_name}.png")
+    plt.savefig(f"{path.trainednet_path}/{pres}nn{trained_name}.png")
     # plt.show()
     # print(f'stacked.shape:{stacked.shape}')
     # print(f'len(real_label):{len(real_label)}') 

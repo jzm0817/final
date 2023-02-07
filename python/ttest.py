@@ -6,6 +6,7 @@ import par
 
 import os
 import platform
+import pickle
 import torch
 import torch.nn as nn
 from torch import optim
@@ -24,18 +25,8 @@ def main(args):
     else:
         train_flag = True 
 
-    if args.bs:
-        batch_size = args.bs
-    else:
-        batch_size = args.default
-
-    # if args.nn:
-    #     nn = args.nn
-    # else:
-    #     nn = args.default
-
     print(f'train_flag:{train_flag}')
-    print(f'batch_size:{batch_size}')
+
     # print(f'nn:{nn}')
     # print(f'type(nn):{type(nn)}')
 
@@ -57,21 +48,27 @@ def main(args):
     elif platform.system() == "Linux":
         num_workers = 8
     
-    data_set_training = DataLoader(data_set_training, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=num_workers)
-    data_set_test = DataLoader(data_set_test, batch_size=batch_size, shuffle=True)
+    index = 0
+    with open(path.nnpar_path + '/' + "par_" + str(index) + ".pkl", 'rb') as f:
+        nnpar = pickle.loads(f.read())
 
-    model = net.convnn()
+    print(f"par.bs:{nnpar.bs}")
+    print(f"par.lr:{nnpar.lr}")
+    print(f"par.epoch:{nnpar.epoch}")
+    data_set_training = DataLoader(data_set_training, batch_size=nnpar.bs, shuffle=True, pin_memory=True, num_workers=num_workers)
+    data_set_test = DataLoader(data_set_test, batch_size=nnpar.bs, shuffle=True)
 
-    model.to(device)
-    optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.5)
+    model = net.neuralnetwork(nnpar.nn_list).to(device)
+
+    optimizer = optim.SGD(model.parameters(), lr=nnpar.lr, momentum=0.5)
     loss_fn = nn.CrossEntropyLoss()
 
-    EPOCH = 110
+    EPOCH = nnpar.epoch
 
 
     loss_all = []
 
-    trained_name = '_' + 'epoch' + str(EPOCH) + '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "bs" + str(batch_size)
+    trained_name = '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "par_" + str(index)
 
     if train_flag:
         for epoch in range(EPOCH):
@@ -82,18 +79,18 @@ def main(args):
                 temp = list(data_set_dict.keys())[1]
                 temp = temp.split('.')[0]
 
-                torch.save(model.state_dict(), f"{path.trainednet_path}/{model.__class__.__name__ + trained_name}.pth")
+                torch.save(model.state_dict(), f"{path.trainednet_path}/nn{trained_name}.pth")
                 print("Saved PyTorch Model State to model.pth")
 
                 plt.plot(loss_all)
-                plt.savefig(f"{path.trainednet_path}/{model.__class__.__name__ + trained_name}.png")
+                plt.savefig(f"{path.trainednet_path}/nn{trained_name}.png")
                 # plt.show()
                 # plt.close()
 
-    model = net.convnn()            
-    model.load_state_dict(torch.load(f"{path.trainednet_path}/{model.__class__.__name__ + trained_name}.pth"))
+    model = net.neuralnetwork(nnpar.nn_list)         
+    model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
     model.to(device)
-    net.test(model, data_set_test, device, batch_size, trained_name)
+    net.test(model, data_set_test, device, nnpar.bs, trained_name)
 
 
 
