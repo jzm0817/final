@@ -28,20 +28,20 @@ data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
 print(f'data_set_training length:{data_set_training.__len__()}')
 print(f'data_set_test length:{data_set_test.__len__()}')
 
-batch_size = 8
-data_set_training = DataLoader(data_set_training, batch_size=batch_size, shuffle=True)
+batch_size = 16
+data_set_training = DataLoader(data_set_training, batch_size=batch_size, shuffle=True, pin_memory=True)
 data_set_test = DataLoader(data_set_test, batch_size=batch_size, shuffle=True)
 
 
 model = net.convnn()
 
 model.to(device)
-optimizer = optim.SGD(model.parameters(), lr=1e-4, momentum=0.5)
+optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.5)
 loss_fn = nn.CrossEntropyLoss()
 
-EPOCH = 10
+EPOCH = 110
 
-train_flag = True  
+train_flag = True 
 loss_all = []
 
 trained_name = '_' + 'epoch' + str(EPOCH) + '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "bs" + str(batch_size)

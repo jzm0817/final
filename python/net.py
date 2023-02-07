@@ -15,19 +15,60 @@ import matplotlib.pyplot as plt
 
 
 
+# nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
+#             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
+#             ('relu1', nn.ReLU(inplace=True)),
+#             ('conv2', nn.Conv2d(10, 20, kernel_size=5)),
+#             ('max_pool2', nn.MaxPool2d(kernel_size=2)),
+#             ('relu2', nn.ReLU(inplace=True)),
+#             ('dropout1', nn.Dropout2d()),
+#             ('flatten1', nn.Flatten(start_dim=1)),
+#             ('affine1', nn.Linear(20 * 45 * 45, 50)),
+#             ('affine2', nn.Linear(50, 10)),
+#             ('affine3', nn.Linear(10, 4)),
+#             ]
+
+ch_in = 32
+reduction = 16
+
+se_list = [
+    ("affine1", nn.Linear(ch_in, ch_in // reduction, bias=False)),
+    ("relu1", nn.ReLU(inplace=True)),
+    ("affine2", nn.Linear(ch_in // reduction, ch_in, bias = False)),
+    ("sigmoid", nn.Sigmoid()) 
+]
+
+
+class se_block(nn.Module):
+    def __init__(self, ch_in, reduction=16):
+        super(se_block, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Sequential(se_list)
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc(y).view(b, c, 1, 1)
+        return x * y.expand_as(x)
+
+
+se_list = OrderedDict(se_list)
+
+se = se_block(ch_in)
+
 nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
             ('relu1', nn.ReLU(inplace=True)),
-            ('conv2', nn.Conv2d(10, 20, kernel_size=5)),
+            ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
             ('max_pool2', nn.MaxPool2d(kernel_size=2)),
             ('relu2', nn.ReLU(inplace=True)),
             ('dropout1', nn.Dropout2d()),
+            ('se_block', se),
             ('flatten1', nn.Flatten(start_dim=1)),
-            ('affine1', nn.Linear(20 * 45 * 45, 50)),
+            ('affine1', nn.Linear(32 * 45 * 45, 50)),
             ('affine2', nn.Linear(50, 10)),
             ('affine3', nn.Linear(10, 4)),
             ]
-
 
 nn_list = OrderedDict(nn_list)
 
@@ -71,7 +112,8 @@ def train(model, data_set_training, optimizer, loss_fn, epoch, device):
         loss.backward()
         optimizer.step()
     
-    print(f'{round(loss_total,2)} in epoch {epoch}')
+    if (epoch + 1) % 10 == 0:
+        print(f'{round(loss_total,2)} in epoch {epoch}')
     return loss_total
 
 
@@ -123,8 +165,12 @@ def test(model, data_set_test, device, bs, trained_name):
         tl, pl = p.tolist()
         cm[tl, pl] = cm[tl, pl] + 1
     # print(cm)
-    plot_confusion_matrix(cm, names)
+    plot_confusion_matrix(cm, names, normalize=True)
     pres = "cm_"
+    output_str = "_normal"
+    plt.savefig(f"{path.trainednet_path}/{pres + model.__class__.__name__ + trained_name + output_str}.png")
+    plt.figure()
+    plot_confusion_matrix(cm, names)
     plt.savefig(f"{path.trainednet_path}/{pres + model.__class__.__name__ + trained_name}.png")
     # plt.show()
     # print(f'stacked.shape:{stacked.shape}')
