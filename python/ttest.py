@@ -29,14 +29,14 @@ print(f'data_set_training length:{data_set_training.__len__()}')
 print(f'data_set_test length:{data_set_test.__len__()}')
 
 batch_size = 16
-data_set_training = DataLoader(data_set_training, batch_size=batch_size, shuffle=True, pin_memory=True)
+data_set_training = DataLoader(data_set_training, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=8)
 data_set_test = DataLoader(data_set_test, batch_size=batch_size, shuffle=True)
 
 
 model = net.convnn()
 
 model.to(device)
-optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.5)
+optimizer = optim.SGD(model.parameters(), lr=1e-3, momentum=0.5)
 loss_fn = nn.CrossEntropyLoss()
 
 EPOCH = 110

@@ -26,7 +26,7 @@ def create_h5dataset(**kwargs):
     else:
         flag = True
     
-    print(pic_path_dict)
+    # print(pic_path_dict)
 
     if (len(kwargs) > 0) and ("pic_size" in kwargs):
         pic_size = kwargs["pic_size"]
