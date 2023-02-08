@@ -105,7 +105,7 @@ def train(model, data_set_training, optimizer, loss_fn, epoch, device):
         optimizer.step()
     
     if (epoch + 1) % 10 == 0:
-        print(f'{round(loss_total,2)} in epoch {epoch}')
+        print(f'{round(loss_total,2)} in epoch {epoch + 1}')
     return loss_total
 
 

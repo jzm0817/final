@@ -7,7 +7,7 @@ import argparse
 pic_size = [96 * 2, 96 * 2]
 pic_list = [
             transforms.Resize((pic_size[0], pic_size[1])),
-            # transforms.CenterCrop((400,400)),
+            # transforms.CenterCrop((400,400)),                                                      
             transforms.ConvertImageDtype(torch.double),
             transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
             # transforms.Grayscale()
