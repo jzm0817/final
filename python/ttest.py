@@ -35,7 +35,7 @@ def main(args):
 
     # print(data_set_dict.keys())
     para_index = 3    ## training 
-    para_index_test = 7 
+    para_index_test = 8 
 
     data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index_test, "test")
     # data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)

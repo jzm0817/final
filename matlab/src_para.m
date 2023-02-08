@@ -3,10 +3,10 @@ clear;
 close all;
 
 save2mat = 1;
-index = 3;
-pic_number = 2000;
-data_type = "training";
-% data_type = "test";
+index = 8;
+pic_number = 200;
+% data_type = "training";
+data_type = "test";
 
 if ispc()
     para_path = "D:/workspace/art/data_info_mat/";
@@ -24,7 +24,7 @@ mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_leng
 "mem2", struct("mod", "qam", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
 
 fs = 610e6;
-freq = 969;
+freq = 1003;
 
 sample_length = 40000;
 slot_len = 1000;
@@ -41,9 +41,9 @@ slot_info = struct("slot_length", slot_len);
 % 'Seed',22, ...
 % 'PathGainsOutputPort',true);
 
-% channel = "awgn";
+channel = "awgn";
 % channel = "rayleigh";
-% snr = 1000;
+snr = 0;
 
 stft_win_length = 256 * 2;
 stft_dft_length = stft_win_length * 2;

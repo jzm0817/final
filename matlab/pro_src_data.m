@@ -21,6 +21,7 @@ classdef pro_src_data
         ss;
         seg_label;
         seg_label_sort;
+        extend_serial;
     end
 
     methods
@@ -40,7 +41,7 @@ classdef pro_src_data
         obj.freq_pattern = freq_pattern;
         obj.protocol_type = lower(protocol_type);
         obj.modulation_para = modulation_para;
-
+        obj.extend_serial = 1.05;
 
         %% get member_name
         obj.member_name = string(fieldnames(obj.modulation_para));
@@ -134,10 +135,10 @@ classdef pro_src_data
         obj.seg_label = seq;
         obj.seg_label_sort = sort(seq, 2);
 
-        ss_vector = zeros(obj.member_num, round(1.1 * obj.sample_length));
+        ss_vector = zeros(obj.member_num, round(obj.extend_serial * obj.sample_length));
 
         if isempty(obj.slot_length_per)
-
+            
             for i = 1:1:length(obj.member_name)
                 seq_temp = [];
                 if i == 1
@@ -149,6 +150,7 @@ classdef pro_src_data
                 end
                 
                 for j = 1:1:size(seq_temp, 2)
+
                     ss_s = obj.src_signal(obj.member_name(i));
                     if j == 1
                         ss_vector(i, seq_temp(1, j):seq_temp(2, j)) = ss_s(1:max(obj.package_length));
@@ -209,8 +211,8 @@ classdef pro_src_data
             package_length2slot_num = ceil(obj.package_length ./ obj.slot_length_per);
             slot_number_in_sample = floor(obj.sample_length ./ obj.slot_length_per);
             % slot_number_in_sample = ceil(obj.sample_length ./ obj.slot_length_per);
-            extend_serial = 1.01;
-            slot_number_in_sample = round(slot_number_in_sample * extend_serial);
+            % extend_serial = 1.01;
+            slot_number_in_sample = round(slot_number_in_sample * obj.extend_serial);
 
             slot_label = [];
 
@@ -239,8 +241,8 @@ classdef pro_src_data
         function label_table_for_package = generate_label_table_for_package(obj, occupied_flag)
             package_len_max = max(obj.package_length);
             package_number_in_sample = floor(obj.sample_length ./ package_len_max);
-            extend_serial = 1.01;
-            package_number_in_sample = round(package_number_in_sample * extend_serial);
+            % extend_serial = 1.01;
+            package_number_in_sample = round(package_number_in_sample * obj.extend_serial);
 
             package_label = [];
             start_stop_table = [];

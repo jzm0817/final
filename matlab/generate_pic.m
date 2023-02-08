@@ -25,7 +25,7 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
             ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{i}, slot_info);
             src_signal = [];
             if channel == "awgn"
-                src_signal = awgn(ss.ss, snr);
+                src_signal = awgn(ss.ss, snr, 'measured');
             elseif channel == "rayleigh"
                 src_signal = rayleighchan(ss.ss');
             end

@@ -12,9 +12,9 @@ if ~exist(path)
     mkdir(path);
 end
 
-protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
+% protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
 
-% protocol_type = {"ALOHA"};
+protocol_type = {"ALOHA"};
 package_len = [1000, 1000, 1000];
 
 mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_length", package_len(1), "package_number", 5), ...
@@ -46,8 +46,9 @@ slot_info = struct("slot_length", slot_len);
 % 'Seed',22, ...
 % 'PathGainsOutputPort',true);
 
+% channel = "rayleigh";
 channel = "awgn";
-snr = 1000;
+snr = 5000;
 
 win_length = 256 * 2;
 dft_length = win_length * 2;
@@ -61,7 +62,12 @@ for i = 1:1:size(protocol_type, 2)
         if isempty(channel)
             src_signal = ss.ss;
         elseif channel == "awgn"
-            src_signal = awgn(ss.ss, snr);
+            % eng = norm(ss.ss) ^2 / length(ss.ss);
+            % ss.ss = ss.ss / sqrt(eng);
+            % norm(ss.ss) ^2 / length(ss.ss)
+            % 1 / length(ss.ss) * dot(ss.ss, ss.ss)
+            src_signal = awgn(ss.ss, snr, 'measured');
+            % size(src_signal)
         elseif channel == "rayleigh"
             src_signal = rayleighchan(ss.ss');
         end
@@ -73,7 +79,9 @@ for i = 1:1:size(protocol_type, 2)
         
         % fig = figure;
         contour(abs(sig_src_tfspec(1:win_length, :)));
-        figure;
+        % figure;
+        % plot(1:1:1000, src_signal(1:1000))
+        % figure;
         % axis off;
         % frame = getframe(fig);
         % img = frame2im(frame);

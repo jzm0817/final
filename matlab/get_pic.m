@@ -1,11 +1,11 @@
 
-% clear;
-% close all;
+clear;
+close all;
 
 t_type = "protocol";
 data_type = "test";
 
-file_number = 5;
+file_number = 8;
 
 if ispc()
     para_path = "D:/workspace/art/data_info_mat/";
@@ -22,6 +22,8 @@ elseif isunix()
 end
 
 file_name = get_files(para_path);
+file_name_h5 = get_files(h5file_path);
+
 
 if  exist("file_number")
     vec = file_number:1:file_number
@@ -34,6 +36,18 @@ for i = vec
     tt = strsplit(file_name(i), '.');
     para_info = tt{1};
 
+
+    flag = 0;
+    index = 1;
+    for k = 1:1:length(file_name_h5)
+        tt = strsplit(file_name_h5(k), '_');
+        num = tt{3};
+
+        if data_type + '_' + num == para_info
+            flag = 1;
+            index = k;
+        end
+    end
     if ispc()
         save_pic_path= "D:/workspace/art/pic/protocol/" + t_type  + "_" + para_info; 
     elseif isunix()
@@ -50,9 +64,9 @@ for i = vec
     end
 
     load(para_path + file_name(i));
-
-    if exist(h5file_path + t_type + data_type + "_" + para_info + ".hdf5")
-        delete(h5file_path + t_type + data_type + "_" + para_info + ".hdf5");
+    
+    if flag
+        delete(h5file_path + file_name_h5(index));
     end
     if exist("channel") ~= 1
         channel = "awgn";
@@ -64,7 +78,7 @@ for i = vec
     elseif channel == "rayleigh"
         channel_info = rayleighchan;
     end
-
+   
     generate_pic(save_pic_path, protocol_type, package_len, slot_info, ...
                 mod_para, fs, freq, sample_length,...
                 stft_win, stft_dft_length, stft_overlap_length, ...
