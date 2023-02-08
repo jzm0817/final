@@ -34,10 +34,12 @@ def main(args):
     # data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
 
     # print(data_set_dict.keys())
-    para_index = 3
-    # data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index, "test")
-    data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
-    # para_index = 0
+    para_index = 3    ## training 
+    para_index_test = 7 
+
+    data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index_test, "test")
+    # data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
+      
 
     print(f'data_set_training length:{data_set_training.__len__()}')
     print(f'data_set_test length:{data_set_test.__len__()}')
@@ -52,14 +54,14 @@ def main(args):
     with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
 
-    print(f"par.bs:{nnpar.bs}")
-    print(f"par.lr:{nnpar.lr}")
-    print(f"par.epoch:{nnpar.epoch}")
+    # print(f"par.bs:{nnpar.bs}")
+    # print(f"par.lr:{nnpar.lr}")
+    # print(f"par.epoch:{nnpar.epoch}")
 
     if train_flag:
-        data_set_training = DataLoader(data_set_training, batch_size=nnpar.bs, shuffle=True, pin_memory=True, num_workers=num_workers)
+        data_set_training = DataLoader(data_set_training, batch_size=nnpar.bs, shuffle=True, pin_memory=True, num_workers=num_workers, drop_last=False)
     
-    data_set_test = DataLoader(data_set_test, batch_size=nnpar.bs, shuffle=True)
+    data_set_test = DataLoader(data_set_test, batch_size=nnpar.bs, shuffle=True, drop_last=False)
 
     # model = net.neuralnetwork(nnpar.nn_list).to(device)
     model = nnpar.ann.to(device)
@@ -73,6 +75,7 @@ def main(args):
     loss_all = []
 
     trained_name = '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "nnpar_" + str(nnpar_index)
+    test_name = '_'+ 'para' + str(para_index) + '--' + str(para_index_test) + par.h5file_suffix + '_' + "nnpar_" + str(nnpar_index)
 
     if train_flag:
         for epoch in range(EPOCH):
@@ -95,7 +98,7 @@ def main(args):
     model = nnpar.ann    
     model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
     model.to(device)
-    net.test(model, data_set_test, device, nnpar.bs, trained_name)
+    net.test(model, data_set_test, device, nnpar.bs, test_name)
 
 
 

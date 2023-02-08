@@ -35,11 +35,11 @@ path = path.nnpar_path
 # for cur_dir, dirs, files in os.walk(path):
 #     index = len(files) 
 
-index = 3
+index = 2
 
 batch_size = 64
 epoch = 100
-learning_rate = 1e-4
+learning_rate = 1e-2
 # nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
 #             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
 #             ('relu1', nn.ReLU(inplace=True)),
@@ -66,6 +66,7 @@ if show_flag:
     print(f'batch_size:{batch_size}')
     print(f'learning_rate:{learning_rate}')
     print(f'model:{model}')
+
 
 if save_flag:
     output_hal = open(path + '/' + "par_" + str(index) + ".pkl", 'wb')

@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import platform
 import numpy as np
 import random
+import path
 
 system_name = platform.system()
 if system_name == "Windows":
@@ -15,9 +16,12 @@ elif system_name == "Linux":
     pic_path = "/home/jzm/workspace/final/pic/protocol/"
 
 
-pic_path_dict = dataset.get_dataset_path(pic_path, print_ctr=1)
+pic_path_dict = path.get_dataset_path(pic_path, print_ctr=1)
 
-pic_size = [96 * 2 * 2, 96 * 2 * 2]
+# pic_size = [96 * 2 * 2, 96 * 2 * 2]
+
+pic_size = [656, 875]
+
 pic_list = [
         transforms.Resize((pic_size[0], pic_size[1])),
         # transforms.CenterCrop((400,400)),
@@ -47,7 +51,7 @@ h5file_suffix = '_' + str(pic_size[0]) + 'x' + str(pic_size[1])
 print(f'pic_path_dict["dict"]:{pic_path_dict["dict"]}')
 # len(pic_path_dict["dict"])
 
-for kk in range(0, 4):
+for kk in range(0, 1):
     print('-------------------------')
     print(h5file_path + '/' + pic_path_dict["dict"][kk] + h5file_suffix)
     if not os.path.exists(h5file_path + '/' + pic_path_dict["dict"][kk] + h5file_suffix + '.hdf5'):
