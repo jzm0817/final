@@ -27,8 +27,6 @@ def main(args):
 
     print(f'train_flag:{train_flag}')
 
-    # print(f'nn:{nn}')
-    # print(f'type(nn):{type(nn)}')
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -36,8 +34,10 @@ def main(args):
     # data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
 
     # print(data_set_dict.keys())
-    para_index = 0
+    para_index = 3
+    # data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index, "test")
     data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
+    # para_index = 0
 
     print(f'data_set_training length:{data_set_training.__len__()}')
     print(f'data_set_test length:{data_set_test.__len__()}')
@@ -48,17 +48,21 @@ def main(args):
     elif platform.system() == "Linux":
         num_workers = 8
     
-    index = 0
-    with open(path.nnpar_path + '/' + "par_" + str(index) + ".pkl", 'rb') as f:
+    nnpar_index = 3
+    with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
 
     print(f"par.bs:{nnpar.bs}")
     print(f"par.lr:{nnpar.lr}")
     print(f"par.epoch:{nnpar.epoch}")
-    data_set_training = DataLoader(data_set_training, batch_size=nnpar.bs, shuffle=True, pin_memory=True, num_workers=num_workers)
+
+    if train_flag:
+        data_set_training = DataLoader(data_set_training, batch_size=nnpar.bs, shuffle=True, pin_memory=True, num_workers=num_workers)
+    
     data_set_test = DataLoader(data_set_test, batch_size=nnpar.bs, shuffle=True)
 
-    model = net.neuralnetwork(nnpar.nn_list).to(device)
+    # model = net.neuralnetwork(nnpar.nn_list).to(device)
+    model = nnpar.ann.to(device)
 
     optimizer = optim.SGD(model.parameters(), lr=nnpar.lr, momentum=0.5)
     loss_fn = nn.CrossEntropyLoss()
@@ -68,7 +72,7 @@ def main(args):
 
     loss_all = []
 
-    trained_name = '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "par_" + str(index)
+    trained_name = '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "nnpar_" + str(nnpar_index)
 
     if train_flag:
         for epoch in range(EPOCH):
@@ -87,7 +91,8 @@ def main(args):
                 # plt.show()
                 # plt.close()
 
-    model = net.neuralnetwork(nnpar.nn_list)         
+    # model = net.neuralnetwork(nnpar.nn_list)     
+    model = nnpar.ann    
     model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
     model.to(device)
     net.test(model, data_set_test, device, nnpar.bs, trained_name)

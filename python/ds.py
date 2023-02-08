@@ -151,8 +151,8 @@ def load_dataset(data_set_dict, data_set_index, data_set_type="both"):
     if data_set_type == "both":
         return data_set_training, data_set_test
     elif data_set_type == "train" or data_set_type == "training":
-        return data_set_training
+        return data_set_training, []
     elif data_set_type == "test":
-        return data_set_test
+        return [], data_set_test
     else:
         raise ValueError("ds -> fun:load_dataset -> invalid para:data_set_type")

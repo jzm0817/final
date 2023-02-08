@@ -209,7 +209,7 @@ classdef pro_src_data
             package_length2slot_num = ceil(obj.package_length ./ obj.slot_length_per);
             slot_number_in_sample = floor(obj.sample_length ./ obj.slot_length_per);
             % slot_number_in_sample = ceil(obj.sample_length ./ obj.slot_length_per);
-            extend_serial = 1.1;
+            extend_serial = 1.01;
             slot_number_in_sample = round(slot_number_in_sample * extend_serial);
 
             slot_label = [];
@@ -239,7 +239,7 @@ classdef pro_src_data
         function label_table_for_package = generate_label_table_for_package(obj, occupied_flag)
             package_len_max = max(obj.package_length);
             package_number_in_sample = floor(obj.sample_length ./ package_len_max);
-            extend_serial = 1.1;
+            extend_serial = 1.01;
             package_number_in_sample = round(package_number_in_sample * extend_serial);
 
             package_label = [];

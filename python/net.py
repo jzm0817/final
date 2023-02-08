@@ -15,56 +15,82 @@ import matplotlib.pyplot as plt
 
 
 class trainpar():
-    def __init__(self, batch_size, learning_rate, epoch,  nn_list):
+    def __init__(self, batch_size, learning_rate, epoch,  ann):
         self.bs = batch_size
         self.lr = learning_rate
         self.epoch = epoch
-        self.nn_list = nn_list
+        self.ann = ann
 
 
-# ch_in = 32
-# reduction = 16
+class residual_block(nn.Module):
+    def __init__(self, ch_in, ch_out, stride=1, downsample=None):
+        super().__init__()
+        self.conv1=nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.bn1=nn.BatchNorm2d(ch_out)
+        self.relu=nn.ReLU(inplace=True)
+        
+        self.conv2=nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2=nn.BatchNorm2d(ch_out)
+        self.downsample=downsample
 
-# se_list = [
-#     ("affine1", nn.Linear(ch_in, ch_in // reduction, bias=False)),
-#     ("relu1", nn.ReLU(inplace=True)),
-#     ("affine2", nn.Linear(ch_in // reduction, ch_in, bias = False)),
-#     ("sigmoid", nn.Sigmoid()) 
-# ]
+    
+    def forward(self, x):
+        residual=x
+        
+        out=self.conv1(x)
+        out=self.bn1(out)
+        out=self.relu(out)
+        out=self.conv2(out)
+        out=self.bn2(out)
+        
+        if self.downsample:
+            residual=self.downsample(x)
+        
+        out+=residual
+        out=self.relu(out)
 
+        return out
 
-# class se_block(nn.Module):
-#     def __init__(self, ch_in, reduction=16):
-#         super(se_block, self).__init__()
-#         self.avg_pool = nn.AdaptiveAvgPool2d(1)
-#         self.fc = nn.Sequential(se_list)
-
-#     def forward(self, x):
-#         b, c, _, _ = x.size()
-#         y = self.avg_pool(x).view(b, c)
-#         y = self.fc(y).view(b, c, 1, 1)
-#         return x * y.expand_as(x)
-
-
-# se_list = OrderedDict(se_list)
-
-# se = se_block(ch_in)
-
-# nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
-#             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
-#             ('relu1', nn.ReLU(inplace=True)),
-#             ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
-#             ('max_pool2', nn.MaxPool2d(kernel_size=2)),
-#             ('relu2', nn.ReLU(inplace=True)),
-#             ('dropout1', nn.Dropout2d()),
-#             ('se_block', se),
-#             ('flatten1', nn.Flatten(start_dim=1)),
-#             ('affine1', nn.Linear(32 * 45 * 45, 50)),
-#             ('affine2', nn.Linear(50, 10)),
-#             ('affine3', nn.Linear(10, 4)),
-#             ]
-
-# nn_list = OrderedDict(nn_list)
+class resnet(nn.Module):
+    def __init__(self, block, layers, num_classes=4):
+        super().__init__()
+        self.ch_in = 16
+        self.conv = nn.Conv2d(3, 16, kernel_size=3)
+        self.bn = nn.BatchNorm2d(16)
+        self.relu = nn.ReLU(inplace=True)
+        self.layer1 = self.make_layer(block, 16, layers[0])
+        self.layer2 = self.make_layer(block, 32, layers[1], 2)
+        self.layer3 = self.make_layer(block, 64, layers[2], 2)
+        self.avg_pool = nn.AvgPool2d(8)
+        self.fc = nn.Linear(64 * 6 * 6, num_classes)
+    
+    def make_layer(self, block, ch_out, blocks, stride=1):
+        downsample = None
+        if (stride != 1) or (self.ch_in != ch_out):
+            downsample = nn.Sequential(
+            nn.Conv2d(self.ch_in, ch_out, kernel_size=3, stride=stride, padding=1, bias=False),
+            nn.BatchNorm2d(ch_out)
+                                     )
+        layers = []
+        layers.append(block(self.ch_in, ch_out, stride, downsample))
+        self.ch_in = ch_out
+        for i in range(1, blocks):
+            layers.append(block(ch_out, ch_out))
+        return nn.Sequential(*layers)# add all of the residual block
+            
+    
+    def forward(self,x):
+        out = self.conv(x) 
+        out = self.bn(out) 
+        out = self.relu(out) 
+        out = self.layer1(out) 
+        out = self.layer2(out) 
+        out = self.layer3(out) 
+        out = self.avg_pool(out) 
+        out = out.view(out.size(0), -1) 
+        out = self.fc(out) 
+        
+        return out 
 
 class neuralnetwork(nn.Module):
 
@@ -133,8 +159,8 @@ def test(model, data_set_test, device, bs, trained_name):
             output = model(image)
             pred = nn.Softmax(dim=1)(output)
         
-        real_label.append(label.cpu().numpy())
-        pred_label.append(pred.argmax(1).cpu().numpy())
+        real_label = np.append(real_label, label.cpu().numpy())
+        pred_label = np.append(pred_label, pred.argmax(1).cpu().numpy())
 
         if ii == 0:
             bs = len(label.cpu().numpy().tolist())
@@ -146,7 +172,8 @@ def test(model, data_set_test, device, bs, trained_name):
 
     real_label = np.array(real_label)
     pred_label = np.array(pred_label)
-
+    # print(real_label)
+    # print(real_label.flatten())
     stacked = torch.stack((torch.tensor(real_label.flatten(), dtype=torch.int64), torch.tensor(pred_label.flatten(), dtype=torch.int64)), dim=1)
     # print(stacked[0:7, :])
     names = list(par.data_type_dict.values())

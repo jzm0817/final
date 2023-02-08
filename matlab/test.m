@@ -1,7 +1,7 @@
 clear;
 close all;
 
-cnt = 50;
+cnt = 1;
 if ispc()
     path = "D:/workspace/art/pic/protocol_training/";
 elseif isunix()
@@ -12,14 +12,14 @@ if ~exist(path)
     mkdir(path);
 end
 
-% protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
+protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
 
-protocol_type = {"ALOHA"};
-package_len = [2000, 2000, 2000];
+% protocol_type = {"ALOHA"};
+package_len = [1000, 1000, 1000];
 
-mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_length", package_len(1), "package_number", 2), ...
-"mem1", struct("mod", "psk", "symbol_rate", 5e6, "order", 2, "package_length", package_len(2), "package_number", 1), ...
-"mem2", struct("mod", "qam", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 3));
+mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_length", package_len(1), "package_number", 5), ...
+"mem1", struct("mod", "psk", "symbol_rate", 5e6, "order", 2, "package_length", package_len(2), "package_number", 5), ...
+"mem2", struct("mod", "qam", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
 
 fs = 610e6;              %%% sample rate
 mem_num = size(fieldnames(mod_para), 1);     %%%  get number of fh signal
@@ -30,7 +30,7 @@ l = link16(mem_num, 5, 0, fs);
 freq = 969;
 
 sample_length = 40000;
-slot_len = 2000;
+slot_len = 1000;
 slot_info = struct("slot_length", slot_len);
 
 
@@ -73,6 +73,7 @@ for i = 1:1:size(protocol_type, 2)
         
         % fig = figure;
         contour(abs(sig_src_tfspec(1:win_length, :)));
+        figure;
         % axis off;
         % frame = getframe(fig);
         % img = frame2im(frame);
