@@ -101,9 +101,6 @@ def main(args):
     net.test(model, data_set_test, device, nnpar.bs, test_name)
 
 
-
-
-
 if __name__ == "__main__":
     args = par.default_argument_parser().parse_args()
     main(args)
