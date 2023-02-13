@@ -7,7 +7,7 @@ import path
 from collections import OrderedDict
 import net
 import argparse
-
+from torchvision import transforms
 import hiddenlayer as h
 
 def default_argument_parser():
@@ -34,8 +34,21 @@ path = path.nnpar_path
 
 # for cur_dir, dirs, files in os.walk(path):
 #     index = len(files) 
+pic_size = [96 * 2, 96 * 2]
+pic_list = [
+            transforms.Resize((pic_size[0], pic_size[1])),
+            # transforms.CenterCrop((400,400)),                                                      
+            transforms.ConvertImageDtype(torch.double),
+            transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
+            # transforms.Grayscale()
+        ]
+    
+pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
+        ]
 
-index = 2
+
+
+index = 1
 
 batch_size = 64
 epoch = 100
@@ -58,7 +71,7 @@ learning_rate = 1e-2
 # model = net.neuralnetwork(nn_list)
 model = net.resnet(net.residual_block, [2,2,2,2])
 
-trainpar = net.trainpar(batch_size, learning_rate, epoch, model)
+trainpar = net.trainpar(batch_size, learning_rate, epoch, model, pic_size, pic_list, pic_enhance_list)
 
 if show_flag:
     print(f'index:{index}')

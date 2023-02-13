@@ -16,7 +16,7 @@ import numpy as np
 
 def create_h5dataset(**kwargs):
     pic_path_dict = path.get_dataset_path(path.pic_path)
-    print(pic_path_dict)
+    # print(pic_path_dict)
 
     flag = False
     if len(pic_path_dict["dict"]) == 0:
@@ -28,10 +28,10 @@ def create_h5dataset(**kwargs):
     
     # print(pic_path_dict)
 
-    if (len(kwargs) > 0) and ("pic_size" in kwargs):
-        pic_size = kwargs["pic_size"]
-    else:
-        pic_size = [656, 875]
+    # if (len(kwargs) > 0) and ("pic_size" in kwargs):
+    #     pic_size = kwargs["pic_size"]
+    # else:
+    #     pic_size = [656, 875]
 
     if (len(kwargs) > 0) and ("pic_list" in kwargs):
         pic_list = kwargs["pic_list"]
@@ -48,11 +48,21 @@ def create_h5dataset(**kwargs):
     else:
         index = False
     
+    if (len(kwargs) > 0) and ("nnpar" in kwargs):
+        nnpar_index = kwargs["nnpar"]
+    else:
+        nnpar_index = 'x'
+    print(f'nnpar_index:{nnpar_index}')
 
     if (len(kwargs) > 0) and ("pic_num" in kwargs):
         pic_num = kwargs["pic_num"]
     else:
         pic_num = 1
+
+    if "pic_enhance" in kwargs:
+        data_enhance_list = kwargs["pic_enhance"]
+    else:
+        data_enhance_list = []
 
     data_set_dict = {}
 
@@ -60,14 +70,15 @@ def create_h5dataset(**kwargs):
     if flag:
         for kk in range(0, len(pic_path_dict["dict"])):
 
-            if not os.path.exists(path.h5file_path + '/' + pic_path_dict["dict"][kk] + par.h5file_suffix + '.hdf5'):
-                dataset.create_h5_file(pic_path_dict["path"] + '/' + pic_path_dict["dict"][kk], pic_trans = pic_list, pic_size=pic_size)
+            if not os.path.exists(path.h5file_path + '/' + pic_path_dict["dict"][kk] + '_nnpar' + str(nnpar_index) + '.hdf5'):
+                dataset.create_h5_file(pic_path_dict["path"] + '/' + pic_path_dict["dict"][kk], \
+                    pic_trans = pic_list, nnpar=nnpar_index, pic_enhance=data_enhance_list)
             
-            data_set_dict[pic_path_dict["dict"][kk] + par.h5file_suffix] = \
-                    dataset.h5py_dataset(path.h5file_path + '/' + pic_path_dict["dict"][kk] + par.h5file_suffix + '.hdf5')
-
+            data_set_dict[pic_path_dict["dict"][kk]  + '_nnpar' + str(nnpar_index)] = \
+                    dataset.h5py_dataset(path.h5file_path + '/' + pic_path_dict["dict"][kk] + '_nnpar' + str(nnpar_index) + '.hdf5')
+            # print(f'data_set_dict:{data_set_dict}')
             if show_pic:
-                dataset_scale = data_set_dict[pic_path_dict["dict"][kk] + par.h5file_suffix].__len__()
+                dataset_scale = data_set_dict[pic_path_dict["dict"][kk] + '_nnpar' + str(nnpar_index)].__len__()
                 
                 if not index:
                     pic_index = np.random.randint(low=0, high=dataset_scale - 1, size=pic_num)
@@ -75,7 +86,7 @@ def create_h5dataset(**kwargs):
                     pic_index = index
 
                 for i in pic_index:
-                    imag, data_type = data_set_dict[pic_path_dict["dict"][kk] + par.h5file_suffix].__getitem__(i)
+                    imag, data_type = data_set_dict[pic_path_dict["dict"][kk] + '_nnpar' + str(nnpar_index)].__getitem__(i)
                     data_type = par.data_type_dict[np.int16(data_type.numpy())]
 
                     print(f'number of picture: {i}')
@@ -138,7 +149,8 @@ def load_dataset(data_set_dict, data_set_index, data_set_type="both"):
 
     cnt = 0
     for k in data_set_dict:
-        
+        # print(k)
+        # print(str(k.split('_')[2])[-1])
         if (k.split('_')[1] == "training") and (int(str(k.split('_')[2])[-1]) == data_set_index):
             data_set_training = data_set_dict[k]
         elif (k.split('_')[1] == "test") and (int(str(k.split('_')[2])[-1]) == data_set_index):

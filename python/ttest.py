@@ -27,18 +27,23 @@ def main(args):
 
     print(f'train_flag:{train_flag}')
 
+    nnpar_index = 1
+    with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
+        nnpar = pickle.loads(f.read())
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    data_set_dict = ds.create_h5dataset(pic_size=par.pic_size, pic_list=par.pic_list)     ###
+    data_set_dict = ds.create_h5dataset(pic_list=nnpar.pic_list, nnpar=nnpar_index)     ###
     # data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
 
     # print(data_set_dict.keys())
     para_index = 3    ## training 
-    para_index_test = 8 
+    para_index_test = 6 
 
-    data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index_test, "test")
-    # data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
+    if not train_flag:
+        data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index_test, "test")
+    else:
+        data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
       
 
     print(f'data_set_training length:{data_set_training.__len__()}')
@@ -50,9 +55,7 @@ def main(args):
     elif platform.system() == "Linux":
         num_workers = 8
     
-    nnpar_index = 3
-    with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
-        nnpar = pickle.loads(f.read())
+    
 
     # print(f"par.bs:{nnpar.bs}")
     # print(f"par.lr:{nnpar.lr}")
@@ -74,8 +77,8 @@ def main(args):
 
     loss_all = []
 
-    trained_name = '_'+ 'para' + str(para_index) + par.h5file_suffix + '_' + "nnpar_" + str(nnpar_index)
-    test_name = '_'+ 'para' + str(para_index) + '--' + str(para_index_test) + par.h5file_suffix + '_' + "nnpar_" + str(nnpar_index)
+    trained_name = '_'+ 'para' + str(para_index) + '_' + "nnpar_" + str(nnpar_index)
+    test_name = '_'+ 'para' + str(para_index) + '--' + str(para_index_test) + '_' + "nnpar_" + str(nnpar_index)
 
     if train_flag:
         for epoch in range(EPOCH):
@@ -94,11 +97,12 @@ def main(args):
                 # plt.show()
                 # plt.close()
 
-    # model = net.neuralnetwork(nnpar.nn_list)     
-    model = nnpar.ann    
-    model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
-    model.to(device)
-    net.test(model, data_set_test, device, nnpar.bs, test_name)
+    # model = net.neuralnetwork(nnpar.nn_list)    
+    if not train_flag: 
+        model = nnpar.ann    
+        model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
+        model.to(device)
+        net.test(model, data_set_test, device, nnpar.bs, test_name)
 
 
 if __name__ == "__main__":

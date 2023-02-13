@@ -15,7 +15,10 @@ import matplotlib.pyplot as plt
 
 
 class trainpar():
-    def __init__(self, batch_size, learning_rate, epoch,  ann):
+    def __init__(self, batch_size, learning_rate, epoch,  ann, pic_size, pic_list, pic_enhance_list):
+        self.pic_size = pic_size
+        self.pic_list = pic_list
+        self.pic_enhance_list = pic_enhance_list
         self.bs = batch_size
         self.lr = learning_rate
         self.epoch = epoch

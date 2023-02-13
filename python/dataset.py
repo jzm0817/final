@@ -45,10 +45,18 @@ class cls_dataset(Dataset):
         else:
             self.trans_ctr_list = []
 
+        if "pic_enhance" in kwargs:
+            self.data_enhance_list = kwargs["pic_enhance"]
+            self.enhance_flag = True
+        else:
+            self.data_enhance_list = []
+            self.enhance_flag = False
+            
         self.transform = transforms.Compose(self.trans_ctr_list)
+        self.data_enhance = transforms.Compose(self.data_enhance_list)
         self.set = []
 
-        print(self.root)
+        # print(self.root)
         type_dict = {"tdma":0, "aloha":1, "csma":2, "slottedaloha":3}
 
         for cur_dir, dirs, files in os.walk(self.root):
@@ -60,8 +68,17 @@ class cls_dataset(Dataset):
                     'image' : pic,
                     'label'  : torch.tensor(type_dict[temp.split('_')[0]])
                 }
-
                 self.set.append(info)
+
+                if self.enhance_flag:
+                    pic_ = self.data_enhance(pic)
+                    info_ = {
+                        'image' : pic_,
+                        'label'  : torch.tensor(type_dict[temp.split('_')[0]])
+                    }
+                    self.set.append(info_)
+
+                
     
     def __getitem__(self, index):
         return self.set[index]
@@ -134,15 +151,31 @@ def create_h5_file(root, **kwargs):
         trans_ctr_list = kwargs["pic_trans"]
     else:
         trans_ctr_list = []
-    
-    if "pic_size" in kwargs:
-        pic_size = kwargs["pic_size"]
+
+    if "pic_enhance" in kwargs:
+        data_enhance_list = kwargs["pic_enhance"]
+        if len(data_enhance_list) > 0:
+            enhance_flag = True
+        else:
+            enhance_flag = False
     else:
-        pic_size = [656, 875]
+        # data_enhance_list = []
+        enhance_flag = False
+
+
+    if (len(kwargs) > 0) and ("nnpar" in kwargs):
+        nnpar_index = kwargs["nnpar"]
+    else:
+        nnpar_index = 'x'
+    # if "pic_size" in kwargs:
+    #     pic_size = kwargs["pic_size"]
+    # else:
+    #     pic_size = [656, 875]
     
-    h5file_suffix = '_' + str(pic_size[0]) + 'x' + str(pic_size[1])
+    h5file_suffix = '_nnpar' + str(nnpar_index)
 
     transform = transforms.Compose(trans_ctr_list)
+    data_enhance = transforms.Compose(data_enhance_list)
 
     if platform.system() == 'Windows':
         path = "D:/workspace/art/data_h5"
@@ -155,7 +188,12 @@ def create_h5_file(root, **kwargs):
 
     if not(os.path.exists(path)):
         os.makedirs(path)
-    file_name = root.split('/')[-1] + h5file_suffix + '.hdf5'
+    
+    if enhance_flag:
+        file_name = root.split('/')[-1] + h5file_suffix + '_a' + '.hdf5'
+    else:
+        file_name = root.split('/')[-1] + h5file_suffix + '.hdf5'
+
     save_path = path + '/' + file_name
     # print(f'h5file save_path:', save_path)
     data_set_data = []
@@ -172,6 +210,10 @@ def create_h5_file(root, **kwargs):
             pic = transform(pic)
             pic = np.array(pic).astype(np.float64)
             data_set_data.append(pic)
+            if enhance_flag:
+                pic_ = data_enhance(read_image(os.path.join(cur_dir, file)))
+                pic_ = np.array(pic_).astype(np.float64)
+                data_set_data.append(pic_)
             temp = file.split('.')[0]
             data_set_type.append(temp.split('_')[0])
 
