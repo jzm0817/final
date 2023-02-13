@@ -27,10 +27,17 @@ else:
     show_flag = False 
 
 
-index = 1
+index = 3
 
 with open(path.nnpar_path + '/' + "par_" + str(index) + ".pkl", 'rb') as f:
     par = pickle.loads(f.read())
+
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # PyTorch v0.4.0
+
+model = par.ann
+model = model.to(device)
 
 if show_flag:
     print(f'pic_size:{par.pic_size}')
@@ -41,11 +48,6 @@ if show_flag:
     print(f'batch_size:{par.bs}')
     print(f'learning_rate:{par.lr}')
     # print(f'model:{par.ann}')
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # PyTorch v0.4.0
-
-model = par.ann
-model = model.to(device)
-summary(model, (3, 96 * 2, 96 * 2))
+    summary(model, (3, 96 * 2, 96 * 2))
 
 

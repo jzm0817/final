@@ -27,13 +27,13 @@ def main(args):
 
     print(f'train_flag:{train_flag}')
 
-    nnpar_index = 1
+    nnpar_index = 3
     with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    data_set_dict = ds.create_h5dataset(pic_list=nnpar.pic_list, pic_enhance=nnpar.pic_enhance_list,nnpar=nnpar_index)     ###
+    # print(nnpar.pic_enhance_list)
+    data_set_dict = ds.create_h5dataset(pic_list=nnpar.pic_list, pic_enhance=nnpar.pic_enhance_list, nnpar=nnpar_index)     ###
     # data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
 
     # print(data_set_dict.keys())

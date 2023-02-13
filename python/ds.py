@@ -63,16 +63,26 @@ def create_h5dataset(**kwargs):
         data_enhance_list = kwargs["pic_enhance"]
     else:
         data_enhance_list = []
-
+    # print(data_enhance_list)
     data_set_dict = {}
 
 
     if flag:
+        # print(data_enhance_list)
+        # print(pic_path_dict["dict"])
+        # print(len(pic_path_dict["dict"]))
         for kk in range(0, len(pic_path_dict["dict"])):
+        
+            if str(pic_path_dict["dict"][kk]).split('_')[1] == "test":
+                enhance_list = []
+            else:
+                enhance_list = data_enhance_list
+
+            print(f'data_enhance_list:{data_enhance_list}')
 
             if not os.path.exists(path.h5file_path + '/' + pic_path_dict["dict"][kk] + '_nnpar' + str(nnpar_index) + '.hdf5'):
                 dataset.create_h5_file(pic_path_dict["path"] + '/' + pic_path_dict["dict"][kk], \
-                    pic_trans = pic_list, nnpar=nnpar_index, pic_enhance=data_enhance_list)
+                    pic_trans = pic_list, nnpar=nnpar_index, pic_enhance=enhance_list)
             
             data_set_dict[pic_path_dict["dict"][kk]  + '_nnpar' + str(nnpar_index)] = \
                     dataset.h5py_dataset(path.h5file_path + '/' + pic_path_dict["dict"][kk] + '_nnpar' + str(nnpar_index) + '.hdf5')
@@ -245,6 +255,7 @@ def load_dataset(data_set_dict, data_set_index, data_set_type="both"):
     data_set_test = []
 
     cnt = 0
+    print(data_set_dict.keys())
     for k in data_set_dict:
         # print(k)
         # print(str(k.split('_')[2])[-1])
@@ -259,7 +270,7 @@ def load_dataset(data_set_dict, data_set_index, data_set_type="both"):
 
     if data_set_type == "both":
         return data_set_training, data_set_test
-    elif data_set_type == "train" or data_set_type == "training":
+    elif data_set_type == "training":
         return data_set_training, []
     elif data_set_type == "test":
         return [], data_set_test
