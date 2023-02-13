@@ -43,12 +43,12 @@ pic_list = [
             # transforms.Grayscale()
         ]
     
-pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
-        ]
+# pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
+#         ]
+pic_enhance_list = []
 
 
-
-index = 1
+index = 2
 
 batch_size = 64
 epoch = 100

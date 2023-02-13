@@ -5,7 +5,7 @@ close all;
 t_type = "protocol";
 data_type = "test";
 
-file_number = 8;
+file_number = 4;
 
 if ispc()
     para_path = "D:/workspace/art/data_info_mat/";

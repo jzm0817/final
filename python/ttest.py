@@ -33,12 +33,12 @@ def main(args):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    data_set_dict = ds.create_h5dataset(pic_list=nnpar.pic_list, nnpar=nnpar_index)     ###
+    data_set_dict = ds.create_h5dataset(pic_list=nnpar.pic_list, pic_enhance=nnpar.pic_enhance_list,nnpar=nnpar_index)     ###
     # data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
 
     # print(data_set_dict.keys())
-    para_index = 3    ## training 
-    para_index_test = 6 
+    para_index = 1    ## training 
+    para_index_test = 1 
 
     if not train_flag:
         data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index_test, "test")
@@ -54,7 +54,6 @@ def main(args):
         num_workers = 0
     elif platform.system() == "Linux":
         num_workers = 8
-    
     
 
     # print(f"par.bs:{nnpar.bs}")

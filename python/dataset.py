@@ -77,8 +77,7 @@ class cls_dataset(Dataset):
                         'label'  : torch.tensor(type_dict[temp.split('_')[0]])
                     }
                     self.set.append(info_)
-
-                
+               
     
     def __getitem__(self, index):
         return self.set[index]
@@ -162,6 +161,7 @@ def create_h5_file(root, **kwargs):
         # data_enhance_list = []
         enhance_flag = False
 
+    print(f'enhance_flag:{enhance_flag}')
 
     if (len(kwargs) > 0) and ("nnpar" in kwargs):
         nnpar_index = kwargs["nnpar"]
@@ -189,10 +189,10 @@ def create_h5_file(root, **kwargs):
     if not(os.path.exists(path)):
         os.makedirs(path)
     
-    if enhance_flag:
-        file_name = root.split('/')[-1] + h5file_suffix + '_a' + '.hdf5'
-    else:
-        file_name = root.split('/')[-1] + h5file_suffix + '.hdf5'
+    # if enhance_flag:
+    #     file_name = root.split('/')[-1] + h5file_suffix + '_a' + '.hdf5'
+    # else:
+    file_name = root.split('/')[-1] + h5file_suffix + '.hdf5'
 
     save_path = path + '/' + file_name
     # print(f'h5file save_path:', save_path)
@@ -210,12 +210,17 @@ def create_h5_file(root, **kwargs):
             pic = transform(pic)
             pic = np.array(pic).astype(np.float64)
             data_set_data.append(pic)
-            if enhance_flag:
-                pic_ = data_enhance(read_image(os.path.join(cur_dir, file)))
-                pic_ = np.array(pic_).astype(np.float64)
-                data_set_data.append(pic_)
             temp = file.split('.')[0]
             data_set_type.append(temp.split('_')[0])
+            if enhance_flag:
+                pic_temp = read_image(os.path.join(cur_dir, file))
+                pic_ = transform(pic_temp)
+                pic_ = data_enhance(pic_)
+                pic_ = np.array(pic_).astype(np.float64)
+                data_set_data.append(pic_)
+                temp = file.split('.')[0]
+                data_set_type.append(temp.split('_')[0])
+            
 
     h5_file.create_dataset("image", data = data_set_data)
     h5_file.create_dataset("label", data = data_set_type)

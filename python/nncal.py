@@ -27,12 +27,15 @@ else:
     show_flag = False 
 
 
-index = 3
+index = 1
 
 with open(path.nnpar_path + '/' + "par_" + str(index) + ".pkl", 'rb') as f:
     par = pickle.loads(f.read())
 
 if show_flag:
+    print(f'pic_size:{par.pic_size}')
+    print(f'pic_list:{par.pic_list}')
+    print(f'pic_enhance_list:{par.pic_enhance_list}')
     print(f'index:{index}')
     print(f'epoch:{par.epoch}')
     print(f'batch_size:{par.bs}')
