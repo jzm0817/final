@@ -3,8 +3,8 @@ clear;
 close all;
 
 save2mat = 1;
-index = 2;
-pic_number = 400;
+index = 3;
+pic_number = 200;
 % data_type = "training";
 data_type = "test";
 
@@ -43,7 +43,7 @@ slot_info = struct("slot_length", slot_len);
 
 channel = "awgn";
 % channel = "rayleigh";
-snr = 10000;
+snr = 0;
 
 stft_win_length = 256 * 2;
 stft_dft_length = stft_win_length * 2;
