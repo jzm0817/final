@@ -40,8 +40,8 @@ def pic_move(pic_tensor):
             else:
                 label_dict[i] = label[index[i-1] + 1:index[i]]
         label_dict[len(index)] = label[index[len(index) - 1] + 1:]
-    print(f'len(label_dict):{len(label_dict)}')
-    
+    # print(f'len(label_dict):{len(label_dict)}')
+
     img_tensor_dict = {}
     for i in range(0, len(label_dict)):
         img_ = np.ones((3, row, col)) * 254
@@ -50,5 +50,5 @@ def pic_move(pic_tensor):
             pic_np[:,  label_dict[i][0] - exten: label_dict[i][-1] + exten, :]
 
         img_tensor_dict[i] = torch.tensor(img_)
-    print('--------------------------')
+    # print('--------------------------')
     return img_tensor_dict
