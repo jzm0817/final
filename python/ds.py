@@ -21,12 +21,34 @@ def create_h5file(file, **kwargs):
 
 def load_dataset_h5(file, **kwargs):
 
-    if not os.path.exists(path.h5file_path + '/' + file):
-        print("************ create file now ************")
-        dataset.create_h5file(file, **kwargs)
+   
+    if (len(kwargs) > 0) and ("mul" in kwargs):
+        mul = kwargs["mul"]
     else:
-        print(f'************ loading {file} ************')
-        data_set = dataset.h5py_dataset(path.h5file_path + '/' + file)
+        mul = False
+
+    if (len(kwargs) > 0) and ("create_file" in kwargs):
+        create_file = kwargs["create_file"]
+    else:
+        create_file = False
+
+    if create_file:
+        if os.path.exists(path.h5file_path + '/' + file):
+            os.remove(path.h5file_path + '/' + file)
+            print("remove existed file!")
+
+    if mul:
+        if not os.path.exists(path.h5file_path + '/' + file):
+            print("************ create special file now ************")
+            dataset.create_h5file_mul(file, **kwargs)
+    else:
+        if not os.path.exists(path.h5file_path + '/' + file):
+            print("************ create file now ************")
+            dataset.create_h5file(file, **kwargs)
+
+    print(f'************ loading {file} ************')
+    data_set = dataset.h5py_dataset(path.h5file_path + '/' + file)
+    print(data_set.__len__())
 
     if (len(kwargs) > 0) and ("show_pic" in kwargs):
         show_pic = kwargs["show_pic"]

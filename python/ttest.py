@@ -29,6 +29,11 @@ def main(args):
     with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
 
+    if args.create:
+        create_file = True
+    else:
+        create_file = False
+
     if args.test:
         test_flag = True
         data_type = "test"
@@ -46,15 +51,25 @@ def main(args):
         print("------------  training  ------------")
     else:
         train_flag = False
+    
+    if args.mul:
+        mul = True
+    else:
+        mul = False
 
     h5file_name = total_type + '_' + data_type + '_para' + \
         str(para_index) + "_nnpar" + str(nnpar_index) + '.hdf5'
-    print(f'h5file_name:{h5file_name}')
+    
+    if mul:
+        h5file_name = total_type + '_' + data_type + '_para' + \
+        str(para_index) + "_nnpar" + str(nnpar_index) + '_mul.hdf5'
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    data_set = ds.load_dataset_h5(file=h5file_name, pic_trans=nnpar.pic_list, pic_enhance=pic_enhance,\
-        # show_pic=True, index=[1, 2, 3]
+    data_set = ds.load_dataset_h5(file=h5file_name, pic_trans=nnpar.pic_list, \
+        pic_enhance=pic_enhance, mul=mul, create_file=create_file,\
+        # show_pic=True, index=[0, 1, 2]
     )     
+    print(f'data set name   : {h5file_name}')
     print(f'data set type   : {data_type}')
     print(f'data set length : {data_set.__len__()}')
     if platform.system() == "Windows":

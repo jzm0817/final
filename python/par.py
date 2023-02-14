@@ -13,7 +13,9 @@ trained_suffix = '_' + "trainpara"
 def default_argument_parser():
     parser = argparse.ArgumentParser(description="pytorch-learning")
     parser.add_argument('--test', action="store_true", help="test model")
+    parser.add_argument('--create', action="store_true", help="create h5 file")
     parser.add_argument('--train', action="store_true", help="train model")
+    parser.add_argument('--mul', action="store_true", help="special test model")
     parser.add_argument('--te', type=int, default=1)
     parser.add_argument('--tr', type=int, default=1)
     parser.add_argument('--npa', type=int, default=1)

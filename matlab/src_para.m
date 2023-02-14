@@ -6,8 +6,8 @@ save2mat = 1;
 index = 4;
 pic_number = 4;
 multi = 1;
-freq_num = 3;
-rand_select = 0;
+freq_num = 4;
+rand_select = 1;
 % data_type = "training";
 data_type = "test";
 cnt = pic_number * freq_num;
@@ -32,16 +32,16 @@ fs = 610e6;
 
 if multi
     if  rand_select
-        freq = []
+        freq = [];
         for i = 1:1:pic_number
             l = link16(freq_num, 1, 30, fs);
-            freq = [freq, l.freq_pattern]
+            freq = [freq, l.freq_pattern];
         end
     else
         l = link16(freq_num, 1, 30, fs);
         fb_map = l.freq_mapping_base;
         f_index = randperm(size(fb_map, 2), freq_num);
-        freq = l.freq_pattern'
+        freq = l.freq_pattern';
     end
 else
     if rand_select
@@ -65,7 +65,7 @@ if multi
         u = repelem(v, cnt / 4);
         randindex = randperm(size(u, 2));
         u = u(randindex);
-        u = reshape(u, 3, []);
+        u = reshape(u, freq_num, []);
         for i = 1:1:size(u, 2)
             protocol_matrix = [protocol_matrix; protocol_type{u(:, i)}];
         end
