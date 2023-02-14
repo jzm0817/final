@@ -16,10 +16,6 @@ import h5py
 import matplotlib.pyplot as plt
 
 
-
-ds.create_h5file()
-
-
 # path_dict = path.get_dataset_path(path.pic_path)
 # print(path_dict["dict"])
 # root = path_dict["path"] + path_dict["dict"][2]

@@ -21,9 +21,10 @@ import numpy as np
 def main(args):
 
     total_type = "protocol"
-    para_index_tr = 1    ## training 
-    para_index_test = 1 
-    nnpar_index = 2
+
+    para_index_tr = args.tr
+    para_index_test = args.te
+    nnpar_index = args.npa
 
     with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
@@ -48,12 +49,14 @@ def main(args):
 
     h5file_name = total_type + '_' + data_type + '_para' + \
         str(para_index) + "_nnpar" + str(nnpar_index) + '.hdf5'
+    print(f'h5file_name:{h5file_name}')
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     data_set = ds.load_dataset_h5(file=h5file_name, pic_trans=nnpar.pic_list, pic_enhance=pic_enhance,\
         # show_pic=True, index=[1, 2, 3]
     )     
-
+    print(f'data set type   : {data_type}')
+    print(f'data set length : {data_set.__len__()}')
     if platform.system() == "Windows":
         num_workers = 0
         pin_mem = False
@@ -78,7 +81,7 @@ def main(args):
 
     if train_flag:
         for epoch in range(EPOCH):
-            loss = net.train(model, data_set_training, optimizer, loss_fn, epoch, device)
+            loss = net.train(model, data_set, optimizer, loss_fn, epoch, device)
             loss_all.append(loss)
             # test(model, data_set_test)
             if (epoch + 1) == EPOCH:
@@ -98,7 +101,7 @@ def main(args):
         model = nnpar.ann    
         model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
         model.to(device)
-        net.test(model, data_set_test, device, nnpar.bs, test_name)
+        net.test(model, data_set, device, nnpar.bs, test_name)
 
 
 if __name__ == "__main__":

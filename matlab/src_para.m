@@ -4,12 +4,13 @@ close all;
 
 save2mat = 1;
 index = 4;
-pic_number = 2;
+pic_number = 4;
 multi = 1;
 freq_num = 3;
 rand_select = 0;
 % data_type = "training";
 data_type = "test";
+cnt = pic_number * freq_num;
 
 if ispc()
     para_path = "D:/workspace/art/data_info_mat/";
@@ -54,6 +55,24 @@ end
 if ~(freq_num == size(freq, 2)) && multi == 0
     fprintf("freq num error\n");
 end
+
+protocol_matrix = [];
+if multi
+    if cnt < length(protocol_type)
+        protocol_matrix = [protocol_matrix, protocol_type{randperm(4, cnt)}];
+    else
+        v = [1, 2, 3, 4];
+        u = repelem(v, cnt / 4);
+        randindex = randperm(size(u, 2));
+        u = u(randindex);
+        u = reshape(u, 3, []);
+        for i = 1:1:size(u, 2)
+            protocol_matrix = [protocol_matrix; protocol_type{u(:, i)}];
+        end
+    end
+end
+protocol_matrix = protocol_matrix';
+
 
 sample_length = 40000;
 slot_len = 1000;
