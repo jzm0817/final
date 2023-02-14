@@ -23,8 +23,8 @@ root = path_dict["path"] + path_dict["dict"][2]
 pic_list = [
             transforms.Resize((192, 192)),
             # transforms.CenterCrop((400,400)),                                                      
-            # transforms.ConvertImageDtype(torch.double),
-            # transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
+            transforms.ConvertImageDtype(torch.double),
+            transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
             # transforms.Grayscale()
         ]
 
@@ -39,8 +39,10 @@ label_dict = {}
 for cur_dir, dirs, files in os.walk(root):
     # for file in files:
         # if cnt == 1:
-    file = files[0]
-    print(files[0])
+    cnt = int(np.random.randint(0, len(files), 1))
+    file = files[cnt]
+    print(f'cnt:{cnt}')
+    print(f'file name:{files[cnt]}')
     img = read_image(os.path.join(cur_dir, file))
     img_show = img.numpy().transpose(1, 2, 0)
     plt.imshow(img_show.astype('uint8'))

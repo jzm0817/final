@@ -27,7 +27,7 @@ else:
     show_flag = False 
 
 
-index = 3
+index = 1
 
 with open(path.nnpar_path + '/' + "par_" + str(index) + ".pkl", 'rb') as f:
     par = pickle.loads(f.read())
