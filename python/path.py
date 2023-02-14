@@ -52,3 +52,8 @@ def get_dataset_path(path, **kwargs):
         print(f'pic dictory:', dict_name)
 
     return {"path":origin_data_path, "dict":dict_name}
+
+
+def get_file(path):
+    for cur_dir, dirs, files in os.walk(path):
+        return files

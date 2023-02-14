@@ -13,6 +13,6 @@ trained_suffix = '_' + "trainpara"
 def default_argument_parser():
     parser = argparse.ArgumentParser(description="pytorch-learning")
     parser.add_argument('--test', action="store_true", help="test model")
-
+    parser.add_argument('--train', action="store_true", help="train model")
     # parser.add_argument('--nn', '--nn-model', default=pic_size)
     return parser

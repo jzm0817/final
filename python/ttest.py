@@ -20,51 +20,49 @@ import numpy as np
 
 def main(args):
 
-    if args.test:
-        train_flag = False
-    else:
-        train_flag = True 
+    total_type = "protocol"
+    para_index_tr = 1    ## training 
+    para_index_test = 1 
+    nnpar_index = 2
 
-    print(f'train_flag:{train_flag}')
-
-    nnpar_index = 1
     with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    # print(nnpar.pic_enhance_list)
-    data_set_dict = ds.create_h5dataset(pic_list=nnpar.pic_list, pic_enhance=nnpar.pic_enhance_list, nnpar=nnpar_index)     ###
-    # data_set_dict = path.get_dataset_path(path.h5file_path)                                 ###data_set_dictdata_set_dict
-
-    # print(data_set_dict.keys())
-    para_index = 1    ## training 
-    para_index_test = 1 
-
-    if not train_flag:
-        data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index_test, "test")
+    if args.test:
+        test_flag = True
+        data_type = "test"
+        para_index = para_index_test
+        pic_enhance = []
+        print("------------  testing  ------------")
     else:
-        data_set_training, data_set_test = ds.load_dataset(data_set_dict, para_index)
-      
+        test_flag = False
 
-    print(f'data_set_training length:{data_set_training.__len__()}')
-    print(f'data_set_test length:{data_set_test.__len__()}')
+    if args.train:
+        train_flag = True 
+        data_type = "training"
+        para_index = para_index_tr
+        pic_enhance = nnpar.pic_enhance_list
+        print("------------  training  ------------")
+    else:
+        train_flag = False
 
-    # batch_size = 16
+    h5file_name = total_type + '_' + data_type + '_para' + \
+        str(para_index) + "_nnpar" + str(nnpar_index) + '.hdf5'
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    data_set = ds.load_dataset_h5(file=h5file_name, pic_trans=nnpar.pic_list, pic_enhance=pic_enhance,\
+        # show_pic=True, index=[1, 2, 3]
+    )     
+
     if platform.system() == "Windows":
         num_workers = 0
+        pin_mem = False
     elif platform.system() == "Linux":
         num_workers = 8
+        pin_mem = True
+
+    data_set = DataLoader(data_set, batch_size=nnpar.bs, shuffle=True, pin_memory=pin_mem, num_workers=num_workers, drop_last=False)
     
-
-    # print(f"par.bs:{nnpar.bs}")
-    # print(f"par.lr:{nnpar.lr}")
-    # print(f"par.epoch:{nnpar.epoch}")
-
-    if train_flag:
-        data_set_training = DataLoader(data_set_training, batch_size=nnpar.bs, shuffle=True, pin_memory=True, num_workers=num_workers, drop_last=False)
-    
-    data_set_test = DataLoader(data_set_test, batch_size=nnpar.bs, shuffle=True, drop_last=False)
-
     # model = net.neuralnetwork(nnpar.nn_list).to(device)
     model = nnpar.ann.to(device)
 
@@ -72,7 +70,6 @@ def main(args):
     loss_fn = nn.CrossEntropyLoss()
 
     EPOCH = nnpar.epoch
-
 
     loss_all = []
 
@@ -97,7 +94,7 @@ def main(args):
                 # plt.close()
 
     # model = net.neuralnetwork(nnpar.nn_list)    
-    if not train_flag: 
+    if test_flag: 
         model = nnpar.ann    
         model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
         model.to(device)

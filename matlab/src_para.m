@@ -5,6 +5,9 @@ close all;
 save2mat = 1;
 index = 4;
 pic_number = 2;
+multi = 1;
+freq_num = 3;
+rand_select = 0;
 % data_type = "training";
 data_type = "test";
 
@@ -23,8 +26,34 @@ mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_leng
 "mem1", struct("mod", "psk", "symbol_rate", 5e6, "order", 2, "package_length", package_len(2), "package_number", 5), ...
 "mem2", struct("mod", "qam", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
 
+
 fs = 610e6;
-freq = [930];
+
+if multi
+    if  rand_select
+        freq = []
+        for i = 1:1:pic_number
+            l = link16(freq_num, 1, 30, fs);
+            freq = [freq, l.freq_pattern]
+        end
+    else
+        l = link16(freq_num, 1, 30, fs);
+        fb_map = l.freq_mapping_base;
+        f_index = randperm(size(fb_map, 2), freq_num);
+        freq = l.freq_pattern'
+    end
+else
+    if rand_select
+        l = link16(1, 1, 30, fs);
+        freq = l.freq_table(randperm(size(l.freq_table, 2), freq_num)) ;
+    else 
+        freq = 969;
+    end
+end
+
+if ~(freq_num == size(freq, 2)) && multi == 0
+    fprintf("freq num error\n");
+end
 
 sample_length = 40000;
 slot_len = 1000;
