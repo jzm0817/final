@@ -12,9 +12,9 @@ if ~exist(path)
     mkdir(path);
 end
 
-% protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
+protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
 
-protocol_type = {"ALOHA"};
+% protocol_type = {"ALOHA"};
 package_len = [1000, 1000, 1000];
 
 mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_length", package_len(1), "package_number", 5), ...
@@ -28,6 +28,7 @@ mem_num = size(fieldnames(mod_para), 1);     %%%  get number of fh signal
 l = link16(mem_num, 5, 0, fs);
 % freq = randsample(l.freq_table, 1)
 freq = 969;
+freq1 = 100;
 
 sample_length = 40000;
 slot_len = 1000;
@@ -35,44 +36,48 @@ slot_info = struct("slot_length", slot_len);
 
 
 
-rayleighchan = comm.RayleighChannel(...
-'SampleRate',fs, ...
-'PathDelays',[0 1.5e-4], ...
-'AveragePathGains',[2 3], ...
-'NormalizePathGains',true, ...
-'MaximumDopplerShift',30e2, ...
-'DopplerSpectrum',{doppler('Gaussian',0.6),doppler('Flat')}, ...
-'RandomStream','mt19937ar with seed', ...
-'Seed',22, ...
-'PathGainsOutputPort',true);
+% rayleighchan = comm.RayleighChannel(...
+% 'SampleRate',fs, ...
+% 'PathDelays',[0 1.5e-4], ...
+% 'AveragePathGains',[2 3], ...
+% 'NormalizePathGains',true, ...
+% 'MaximumDopplerShift',30e2, ...
+% 'DopplerSpectrum',{doppler('Gaussian',0.6),doppler('Flat')}, ...
+% 'RandomStream','mt19937ar with seed', ...
+% 'Seed',22, ...
+% 'PathGainsOutputPort',true);
 
-channel = "rayleigh";
-% channel = "awgn";
-% snr = 5000;
+% channel = "rayleigh";
+channel = "awgn";
+snr = 5000;
 
 win_length = 256 * 2;
 dft_length = win_length * 2;
 win = hann(win_length);
 overlap_length = round(0.75 * win_length);
 
-for i = 1:1:size(protocol_type, 2)
+for i = 1:1:1
 
-    for j = 1:1:cnt
-        ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{i}, slot_info);
+    for j = 1:1:1
+        ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{1}, slot_info);
+        ss1 = pro_src_data(fs, sample_length, freq1, mod_para, protocol_type{2}, slot_info);
         if isempty(channel)
             src_signal = ss.ss;
+            src_signal1 = ss1.ss;
         elseif channel == "awgn"
             % eng = norm(ss.ss) ^2 / length(ss.ss);
             % ss.ss = ss.ss / sqrt(eng);
             % norm(ss.ss) ^2 / length(ss.ss)
             % 1 / length(ss.ss) * dot(ss.ss, ss.ss)
             src_signal = awgn(ss.ss, snr, 'measured');
+            src_signal1 = awgn(ss1.ss, snr, 'measured');
             % size(src_signal)
         elseif channel == "rayleigh"
             src_signal = rayleighchan(ss.ss');
+            src_signal1 = rayleighchan(ss1.ss');
         end
         
-        sig_src_tfspec = stft(src_signal, fs, 'FFTLength', dft_length, ...
+        sig_src_tfspec = stft(src_signal + src_signal1, fs, 'FFTLength', dft_length, ...
         'Window', win, 'Centered', false, 'OverlapLength', overlap_length);
         %%% draw source signal   (time-frequency domain)
         % figure('visible', 'off');

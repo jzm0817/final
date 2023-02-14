@@ -22,13 +22,21 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
     for i = 1:1:size(protocol_type, 2)
 
         for j = 1:1:pic_number
-            ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{i}, slot_info);
             src_signal = [];
-            if channel == "awgn"
-                src_signal = awgn(ss.ss, snr, 'measured');
-            elseif channel == "rayleigh"
-                src_signal = rayleighchan(ss.ss');
+            for k = 1:1:size(freq, 2)
+                ss = pro_src_data(fs, sample_length, freq(k), mod_para, protocol_type{i}, slot_info);
+                % channel, snr
+                if channel == "awgn"
+                    src_signal(k, :) = awgn(ss.ss, snr, 'measured');
+                elseif channel == "rayleigh"
+                    src_signal(k, :) = rayleighchan(ss.ss');
+                end
+
             end
+            if size(freq, 2) > 1
+                src_signal = sum(src_signal);
+            end
+            
             sig_src_tfspec = stft(src_signal, fs, 'FFTLength', stft_dft_length, ...
             'Window', stft_win, 'Centered', false, 'OverlapLength', stft_overlap_length);
             %%% draw source signal   (time-frequency domain)
@@ -44,6 +52,7 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
             saveas(fig, path + lower(protocol_type{i}) + '_' + string(j) + ".jpg");
             clear gcf;
             close all;
+            
         end
 
     end

@@ -27,7 +27,7 @@ def main(args):
 
     print(f'train_flag:{train_flag}')
 
-    nnpar_index = 3
+    nnpar_index = 1
     with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
 

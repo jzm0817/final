@@ -3,8 +3,8 @@ clear;
 close all;
 
 save2mat = 1;
-index = 3;
-pic_number = 200;
+index = 4;
+pic_number = 2;
 % data_type = "training";
 data_type = "test";
 
@@ -24,7 +24,7 @@ mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_leng
 "mem2", struct("mod", "qam", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
 
 fs = 610e6;
-freq = 1003;
+freq = [930];
 
 sample_length = 40000;
 slot_len = 1000;
@@ -43,7 +43,7 @@ slot_info = struct("slot_length", slot_len);
 
 channel = "awgn";
 % channel = "rayleigh";
-snr = 0;
+snr = 10000;
 
 stft_win_length = 256 * 2;
 stft_dft_length = stft_win_length * 2;

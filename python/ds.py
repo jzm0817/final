@@ -78,7 +78,7 @@ def create_h5dataset(**kwargs):
             else:
                 enhance_list = data_enhance_list
 
-            print(f'data_enhance_list:{data_enhance_list}')
+            print(f'data_enhance_list:{enhance_list}')
 
             if not os.path.exists(path.h5file_path + '/' + pic_path_dict["dict"][kk] + '_nnpar' + str(nnpar_index) + '.hdf5'):
                 dataset.create_h5_file(pic_path_dict["path"] + '/' + pic_path_dict["dict"][kk], \
