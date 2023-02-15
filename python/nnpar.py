@@ -14,10 +14,12 @@ def default_argument_parser():
     parser = argparse.ArgumentParser(description="pytorch-learning")
     parser.add_argument('--show', action="store_true", help="show parameters")
     parser.add_argument('--save', action="store_true", help="save .pkl")
-    # parser.add_argument('--nn', '--nn-model', default=pic_size)
+    parser.add_argument('--id', type=int, default=0)
     return parser
 
 args = default_argument_parser().parse_args()
+
+index = args.id
 
 if args.show:
     show_flag = True
@@ -46,9 +48,6 @@ pic_list = [
 # pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
 #         ]
 pic_enhance_list = []
-
-
-index = 4
 
 batch_size = 64
 epoch = 100

@@ -18,5 +18,5 @@ def default_argument_parser():
     parser.add_argument('--mul', action="store_true", help="special test model")
     parser.add_argument('--te', type=int, default=1)
     parser.add_argument('--tr', type=int, default=1)
-    parser.add_argument('--npa', type=int, default=1)
+    parser.add_argument('--npa', type=int, default=0)
     return parser

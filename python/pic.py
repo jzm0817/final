@@ -12,8 +12,8 @@ def pic_move(pic_tensor):
     label = []
     row = 0
     col = 0
-    interval = 20
-    exten = 20
+    interval = 20    ## multiple frequency 
+    exten = 20       ## safe distance
     label_dict = {}
 
     pic_np = pic_tensor.numpy()

@@ -21,7 +21,6 @@ def create_h5file(file, **kwargs):
 
 def load_dataset_h5(file, **kwargs):
 
-   
     if (len(kwargs) > 0) and ("mul" in kwargs):
         mul = kwargs["mul"]
     else:

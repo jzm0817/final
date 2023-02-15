@@ -14,12 +14,13 @@ import net
 def default_argument_parser():
     parser = argparse.ArgumentParser(description="pytorch-learning")
     parser.add_argument('--show', action="store_true", help="show parameters")
-    parser.add_argument('--save', action="store_true", help="save .pkl")
-    # parser.add_argument('--nn', '--nn-model', default=pic_size)
+    parser.add_argument('--id', type=int, default=0)
     return parser
 
 
 args = default_argument_parser().parse_args()
+
+index = args.id
 
 if args.show:
     show_flag = True
@@ -27,11 +28,11 @@ else:
     show_flag = False 
 
 
-index = 2
-
 with open(path.nnpar_path + '/' + "par_" + str(index) + ".pkl", 'rb') as f:
     par = pickle.loads(f.read())
-
+print('------------------------------------')
+print(f'load par_{index}.pkl')
+print('------------------------------------')
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # PyTorch v0.4.0
 

@@ -143,3 +143,135 @@ t.py        测试
 test.py     测试
 tt.py       测试
 ttest.py    主要内容
+
+plotcm.py   混淆矩阵绘制相关
+
+### pic.py
+实现图片切割，对于只有一个频点的时频图，由于其频点值可能发生改变，导致信号出现的位置不固定，而使用某一频点的数据训练网络后，使用另一频点的数据进行验证，其效果一般不理想，推测可能与时频图中信号出现的位置有关，为了消除这一影响，决定对原始时频图进行一定的处理，将所有时频图中出现的信号移动到图片的中央或近中央附近，再进行后续的训练。对于只有一个频点的时频图，找出其包含信号的部分，取含有信号的部分及其上下 exten(pic.py 中的变量) 附近的图片移动至图片中央；对于有多个频点的时频图，则分别取出每一段含有信号的频点，再分别移动到图片中央，注意此时的图片数量为频点的数量，因此此时的数据集的大小将是频点数量与图片数量的乘积。训练时均采用只含一个频点的图片进行训练。
+
+### path.py
+存放一些文件夹的地址。
+get_dataset_path(path, **kwargs) 返回指定路径中非空文件夹的名称，用于根据图片制作数据集。最初时使用，现可能使用较少或者不推荐使用。
+get_file(path) 函数返回指定路径中的文件名
+
+### par.py
+内容较少，主要有一个命令行参数内容的设置 
+
+### nnpar.py
+定义一些参数，如 pic_size 定义处理后的图片尺寸，pic_list 定义图片处理的具体方法，pic_enhance_list 为空时不进行数据增强，需要图片增强时使用上一句被注释的语句，数据增强内容为简单的水平翻转，只对训练集使用数据增强。
+batch_size、epoch、learning_rate 为训练时的参数
+nn_list 用于定义网络结构，网络结构需要先在 nncal.py 中进行验证
+最后将这些参数打包定义一个 trainpar 类
+
+命令行参数
+--show 显示部分参数
+--save 保存为 .pkl 文件  <font color=red>需要保存为 .pkl 文件时一定要有</font>
+--id 用于指定 .pkl 文件的编号，缺省时默认为零 .pkl 文件的命名格式: par_{index}.pkl
+
+保存为 .pkl 文件后会有提示信息
+
+使用:
+```shell
+python  nnpar.py --save --id 2 
+```
+
+
+### nncal.py
+用于网络结构正确性的验证，也可用于 .pkl 文件中参数正确性的验证。网络结构的验证运用了 torchsummary 模块中的 summary，具体使用方法可参考代码，也可参考相关资料。
+
+命令行参数
+--show 显示参数(基本源于 nnpar.py 中的参数)
+--id 用于指定 .pkl 文件的编号，缺省时默认为零 
+
+一般 nnpar.py 和 nncal.py 结合使用，先使用 nnpar.py 得到 .pkl 文件，再验证网络的正确性。网络可在别的文件中决定，经过验证后复制到 nnpar.py 中，网络定义的方法参考 nnpar.py，网络验证的方法参考 nncal.py
+
+使用:
+```shell
+python  nncal.py --id 2 --show 
+```
+
+### net.py
+trainpar 类，训练参数类
+residual_block 类 和 resnet 类 用于搭建残差网络
+
+``` python
+model = net.resnet(net.residual_block, [2,2,2,2])    ### from nnpar.py
+```
+neuralnetwork 类，根据列表构建网络
+
+```python
+#### from nnpar.py
+nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
+            ('max_pool1', nn.MaxPool2d(kernel_size=2)),
+            ('relu1', nn.ReLU(inplace=True)),
+            ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
+            ('max_pool2', nn.MaxPool2d(kernel_size=2)),
+            ('relu2', nn.ReLU(inplace=True)),
+            # ('dropout1', nn.Dropout2d()),
+            ('flatten1', nn.Flatten(start_dim=1)),
+            ('affine1', nn.Linear(32 * 45 * 45, 50)),
+            ('affine2', nn.Linear(50, 10)),
+            ('affine3', nn.Linear(10, 4)),
+            ]
+
+
+nn_list = OrderedDict(nn_list)
+model = net.neuralnetwork(nn_list)
+```
+train 和 test 函数分别定义训练及测试的一些操作
+
+### ds.py
+根据文件名加载 .hdf5 格式的数据集，如果没有该文件，则先创建 .hdf5 格式的数据集文件再加载。
+
+### dataset.py
+根据 .jpg 格式的图片，制作 .hdf5 格式的数据集，其中有两个版本的函数，一个用于单一频点数据集的制作(主要是训练集)，另一个带 _mul 后缀的函数制作多频点数据集，主要用于测试集的制作。
+
+另有根据 .jpg 图片直接制作数据集的函数，但该方法会将占用大量内存(跟制作 .hdf5 文件时类似)，不建议大量数据时使用，现已废弃，可在 rus/dataset_.py 中找到相关代码。
+
+### ttest.py
+主要使用的是 ttest.py 这个模块，用于训练或测试。使用时一定要输入 --test 或 --train 区分用于测试还是训练，否则无法完成。
+
+命令行参数(定义在 par.py 中)
+--test 测试时输入
+--train 训练时输入
+--create 强制创建 .hdf5 数据集文件(若已存在 .hdf5 文件，删除后重建)
+--te 指定测试数据集编号，缺省值为 1
+--tr 指定训练数据集编号，缺省值为 1
+--npa 指定参数 .pkl 文件编号缺省值为 0
+--mul 对于多频点的数据，需加上
+
+--test 会确定 data_type 为 test
+--train 会确定 data_type 为 train
+缺少上述两参数之一，则 data_type 未定义
+
+
+.hdf4 文件的命名格式: protocol_{data_type}_para_{para_index}_nnpar{nnpar_index}.hdf5
+data_type 表示数据的类型， test or train
+para_index 表示 .mat 文件的编号
+nnpar_index 表示 .pkl 文件的编号
+
+.mat 文件的命名格式: {data_type}_para{para_index}.mat
+.pkl 文件的命名格式: par_{nnpar_index}.pkl
+
+<font color=red>注意训练与测试两个过程分离，训练后不会进行测试</font>
+
+#### 训练
+根据 /pic/protocol/protocol_training_para1 进行训练
+
+```shell
+python ttest.py --train --tr 1   
+## if exist data_h5/protocol_test_para1_nnpar1.hdf5 load it and training
+```
+```shell
+python ttest.py --train --tr 1 --create
+## remove data_h5/protocol_test_para1_nnpar1.hdf5 (if exist)
+## create data_h5/protocol_test_para1_nnpar1.hdf5
+## load it and training
+```
+
+#### 测试
+
+根据 /pic/protocol/protocol_test_para4 进行测试，测试的模型由 /pic/protocol/protocol_training_para1 训练得到
+```shell
+python ttest.py --test --te 4 --tr 1 (--create)
+```
