@@ -33,7 +33,6 @@ with open(path.nnpar_path + '/' + "par_" + str(index) + ".pkl", 'rb') as f:
     par = pickle.loads(f.read())
 
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # PyTorch v0.4.0
 
 model = par.ann
