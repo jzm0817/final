@@ -116,11 +116,13 @@ def create_h5file_mul(file_name, **kwargs):
                 pic = transform(pic)
                 pic = np.array(pic).astype(np.float64)
                 data_set_data.append(pic)
-                temp = file.split('.')[0]
-                label_tmp = temp.split('_')[0]
-                label_list = label_tmp.split('-')
-                for ii in range(0, len(label_list)):
-                    data_set_type.append(label_list[ii])
+            temp = file.split('.')[0]
+            label_tmp = temp.split('_')[0]
+            label_list = label_tmp.split('-')
+            # print(f'label_list:{label_list}')
+            for ii in range(0, len(label_list)):
+                data_set_type.append(label_list[ii])
+
             if enhance_flag:
                 pic_temp = read_image(os.path.join(cur_dir, file))
                 pic_dict_ = pic_move(pic_temp)
@@ -130,13 +132,15 @@ def create_h5file_mul(file_name, **kwargs):
                     pic_ = data_enhance(pic_)
                     pic_ = np.array(pic_).astype(np.float64)
                     data_set_data.append(pic_)
-                    temp = file.split('.')[0]
-                    label_tmp = temp.split('_')[0]
-                    label_list = label_tmp.split('-')
-                    for ii in range(0, len(label_list)):
-                        data_set_type.append(label_list[ii])
+                temp = file.split('.')[0]
+                label_tmp = temp.split('_')[0]
+                label_list = label_tmp.split('-')
+                for ii in range(0, len(label_list)):
+                    data_set_type.append(label_list[ii])
     # print(f'len(data_set_data):{len(data_set_data)}')
     # print(f'len(data_set_type):{len(data_set_type)}')
+    # print(f'data_set_type:{len(data_set_type)}')
+    # print()
     h5_file.create_dataset("image", data = data_set_data)
     h5_file.create_dataset("label", data = data_set_type)
     h5_file.close()  

@@ -20,6 +20,14 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
     end
 
     for i = 1:1:size(protocol_type, 2)
+        label_name = [];
+        if size(freq, 2) > 1
+            protocol_vec = repmat(protocol_type{i}, 1, size(freq, 2));
+            label_name = lower(join(protocol_vec, "-"));
+        else
+            label_name = lower(protocol_type{i})
+        end
+        
 
         for j = 1:1:pic_number
             src_signal = [];
@@ -55,7 +63,7 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
             % frame = getframe(fig);
             % img = frame2im(frame);
             % imwrite(img, path + protocol_type{i} + '_' + string(j) + '.jpg')
-            saveas(fig, path + lower(protocol_type{i}) + '_' + string(j) + ".jpg");
+            saveas(fig, path + label_name + '_' + string(j) + ".jpg");
             clear gcf;
             close all;
             

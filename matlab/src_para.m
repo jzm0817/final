@@ -3,9 +3,9 @@ clear;
 close all;
 
 save2mat = 1;
-index = 4;
-pic_number = 4;
-multi = 1;
+index = 6;
+pic_number = 200;
+multi = 0;
 freq_num = 3;
 rand_select = 1;
 % data_type = "training";

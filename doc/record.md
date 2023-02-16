@@ -57,6 +57,7 @@ timeslot_est.m                时隙估计类
 产生不同协议的时频图方法:
 简略:使用 src_para.m 保存 .mat 文件，在使用 get_pic 即可。具体细节如下：
 
+<font color=red>记得修改 src_para.m 中的 index 后，在 get_pic 中也要修改相应的 file_number，如果不知道文件编号，执行 get_files 获取。</font>
 ## 参数设置
 在 src_para.m 文件中设置基本的参数，文件中的主要参数如下:
 
@@ -245,7 +246,7 @@ train 和 test 函数分别定义训练及测试的一些操作
 缺少上述两参数之一，则 data_type 未定义
 
 
-.hdf4 文件的命名格式: protocol_{data_type}_para_{para_index}_nnpar{nnpar_index}.hdf5
+.hdf5 文件的命名格式: protocol_{data_type}_para_{para_index}_nnpar{nnpar_index}.hdf5
 data_type 表示数据的类型， test or train
 para_index 表示 .mat 文件的编号
 nnpar_index 表示 .pkl 文件的编号

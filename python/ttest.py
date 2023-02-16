@@ -23,8 +23,12 @@ def main(args):
     total_type = "protocol"
 
     para_index_tr = args.tr
-    para_index_test = args.te
+    para_index_te = args.te
     nnpar_index = args.npa
+
+    trained_name = '_'+ 'para' + str(para_index_tr) + '_' + "nnpar_" + str(nnpar_index)
+    test_name = '_'+ 'para' + str(para_index_tr) + '--' + str(para_index_te) + '_' + "nnpar_" + str(nnpar_index)
+
 
     with open(path.nnpar_path + '/' + "par_" + str(nnpar_index) + ".pkl", 'rb') as f:
         nnpar = pickle.loads(f.read())
@@ -37,7 +41,7 @@ def main(args):
     if args.test:
         test_flag = True
         data_type = "test"
-        para_index = para_index_test
+        para_index = para_index_te
         pic_enhance = []
         print("------------  testing  ------------")
     else:
@@ -67,7 +71,7 @@ def main(args):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     data_set = ds.load_dataset_h5(file=h5file_name, pic_trans=nnpar.pic_list, \
         pic_enhance=pic_enhance, mul=mul, create_file=create_file,\
-        # show_pic=True, index=[0, 1, 2]
+        # show_pic=True, index=[0, 1, 2, 3, 4, 5]
     )     
     print(f'data set name   : {h5file_name}')
     print(f'data set type   : {data_type}')
@@ -90,10 +94,7 @@ def main(args):
     EPOCH = nnpar.epoch
 
     loss_all = []
-
-    trained_name = '_'+ 'para' + str(para_index) + '_' + "nnpar_" + str(nnpar_index)
-    test_name = '_'+ 'para' + str(para_index) + '--' + str(para_index_test) + '_' + "nnpar_" + str(nnpar_index)
-
+    
     if train_flag:
         for epoch in range(EPOCH):
             loss = net.train(model, data_set, optimizer, loss_fn, epoch, device)
