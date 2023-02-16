@@ -25,7 +25,7 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
             protocol_vec = repmat(protocol_type{i}, 1, size(freq, 2));
             label_name = lower(join(protocol_vec, "-"));
         else
-            label_name = lower(protocol_type{i})
+            label_name = lower(protocol_type{i});
         end
         
 

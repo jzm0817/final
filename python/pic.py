@@ -21,7 +21,7 @@ def pic_move(pic_tensor):
     col = pic_np.shape[2]
 
     for i in range(0, row):
-        if np.sum(pic_np[0, i, :]) < 254 * col:
+        if np.sum(pic_np[0, i, :]) < (254 * col) * 0.95:
             label.append(i)
 
     label_diff = np.diff(label)

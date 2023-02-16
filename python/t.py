@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 
 path_dict = path.get_dataset_path(path.pic_path)
 print(path_dict["dict"])
-root = path_dict["path"] + path_dict["dict"][2]
-
+root = path_dict["path"] + path_dict["dict"][6]
+print(root)
 pic_list = [
             transforms.Resize((192, 192)),
             # transforms.CenterCrop((400,400)),                                                      
@@ -36,11 +36,12 @@ col = 0
 interval = 20
 exten = 20
 label_dict = {}
+num = 7
 for cur_dir, dirs, files in os.walk(root):
     # for file in files:
         # if cnt == 1:
-    file = files[0]
-    print(files[0])
+    file = files[num]
+    print(files[num])
     img = read_image(os.path.join(cur_dir, file))
     # img = transform(img)
     print(f'img.shape:{img.shape}')
@@ -59,7 +60,8 @@ for cur_dir, dirs, files in os.walk(root):
     print(f'row:{row}')
     # print(f'img[0, 0, 1:10]:{img[0, 0, 1:10]}')
     for i in range(0, row):
-        if np.sum(img[0, i, :]) < 254 * col:
+        # print(np.sum(img[0, i, :]))
+        if np.sum(img[0, i, :]) < 254 * col * 0.95:
             label.append(i)
         # print(np.sum(img[0, i, :]))
         # for j in range(0, col):

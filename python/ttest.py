@@ -22,6 +22,11 @@ def main(args):
 
     total_type = "protocol"
 
+    if args.show:
+        show_flag = True
+    else:
+        show_flag = False
+        
     para_index_tr = args.tr
     para_index_te = args.te
     nnpar_index = args.npa
@@ -71,7 +76,7 @@ def main(args):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     data_set = ds.load_dataset_h5(file=h5file_name, pic_trans=nnpar.pic_list, \
         pic_enhance=pic_enhance, mul=mul, create_file=create_file,\
-        # show_pic=True, index=[0, 1, 2, 3, 4, 5]
+        show_pic=show_flag, index=[0, 1, 2]
     )     
     print(f'data set name   : {h5file_name}')
     print(f'data set type   : {data_type}')
