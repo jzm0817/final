@@ -26,7 +26,7 @@ def main(args):
         show_flag = True
     else:
         show_flag = False
-        
+
     para_index_tr = args.tr
     para_index_te = args.te
     nnpar_index = args.npa
@@ -106,8 +106,8 @@ def main(args):
             loss_all.append(loss)
             # test(model, data_set_test)
             if (epoch + 1) == EPOCH:
-                temp = list(data_set_dict.keys())[1]
-                temp = temp.split('.')[0]
+                # temp = list(data_set_dict.keys())[1]
+                # temp = temp.split('.')[0]
 
                 torch.save(model.state_dict(), f"{path.trainednet_path}/nn{trained_name}.pth")
                 print("Saved PyTorch Model State to model.pth")
