@@ -45,30 +45,30 @@ pic_list = [
             # transforms.Grayscale()
         ]
     
-# pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
-#         ]
-pic_enhance_list = []
+pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
+        ]
+# pic_enhance_list = []
 
-batch_size = 64
+batch_size = 32
 epoch = 100
-learning_rate = 1e-2
-nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
-            ('max_pool1', nn.MaxPool2d(kernel_size=2)),
-            ('relu1', nn.ReLU(inplace=True)),
-            ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
-            ('max_pool2', nn.MaxPool2d(kernel_size=2)),
-            ('relu2', nn.ReLU(inplace=True)),
-            # ('dropout1', nn.Dropout2d()),
-            ('flatten1', nn.Flatten(start_dim=1)),
-            ('affine1', nn.Linear(32 * 45 * 45, 50)),
-            ('affine2', nn.Linear(50, 10)),
-            ('affine3', nn.Linear(10, 4)),
-            ]
+learning_rate = 1e-3
+# nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
+#             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
+#             ('relu1', nn.ReLU(inplace=True)),
+#             ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
+#             ('max_pool2', nn.MaxPool2d(kernel_size=2)),
+#             ('relu2', nn.ReLU(inplace=True)),
+#             # ('dropout1', nn.Dropout2d()),
+#             ('flatten1', nn.Flatten(start_dim=1)),
+#             ('affine1', nn.Linear(32 * 45 * 45, 50)),
+#             ('affine2', nn.Linear(50, 10)),
+#             ('affine3', nn.Linear(10, 4)),
+#             ]
 
 
-nn_list = OrderedDict(nn_list)
-model = net.neuralnetwork(nn_list)
-# model = net.resnet(net.residual_block, [2,2,2,2])
+# nn_list = OrderedDict(nn_list)
+# model = net.neuralnetwork(nn_list)
+model = net.resnet(net.residual_block, [2,2,2,2])
 
 trainpar = net.trainpar(batch_size, learning_rate, epoch, model, pic_size, pic_list, pic_enhance_list)
 
@@ -78,6 +78,9 @@ if show_flag:
     print(f'batch_size:{batch_size}')
     print(f'learning_rate:{learning_rate}')
     print(f'model:{model}')
+    print(f'pic_size:{pic_size}')
+    print(f'pic_list:{pic_list}')
+    print(f'pic_enhance_list:{pic_enhance_list}')
 
 
 if save_flag:
