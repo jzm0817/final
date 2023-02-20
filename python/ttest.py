@@ -113,7 +113,7 @@ def main(args):
                 print("Saved PyTorch Model State to model.pth")
 
                 plt.plot(loss_all)
-                plt.savefig(f"{path.trainednet_path}/nn{trained_name}.png")
+                plt.savefig(f"{path.trainednet_path}/nn{trained_name}.svg")
                 # plt.show()
                 # plt.close()
 

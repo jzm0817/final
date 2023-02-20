@@ -61,12 +61,13 @@ win_length = 256 * 2 * 1;
 dft_length = win_length * 2;
 win = hann(win_length);
 overlap_length = round(0.75 * win_length);
+prob = 0.3;
 
 for i = 1:1:1
 
     for j = 1:1:1
-        ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{2}, slot_info);
-        ss1 = pro_src_data(fs, sample_length, freq1, mod_para, protocol_type{1}, slot_info);
+        ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{1}, prob, slot_info);
+        ss1 = pro_src_data(fs, sample_length, freq1, mod_para, protocol_type{1}, prob, slot_info);
         if isempty(channel)
             src_signal = ss.ss;
             src_signal1 = ss1.ss;

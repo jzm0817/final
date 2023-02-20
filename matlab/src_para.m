@@ -3,16 +3,16 @@ clear;
 close all;
 
 save2mat = 1;
-index = 2;
+index = 8;
 pic_number = 200;
-multi = 0;
-freq_num = 1;
+multi = 1;
+freq_num = 3;
 rand_select = 1;
 % data_type = "training";
 data_type = "test";
 cnt = pic_number * freq_num;
 
-
+prob_vec = [0.1];
 package_len = [1000, 1000, 1000];
 sample_length = 40000;
 slot_len = 1000;
@@ -103,7 +103,7 @@ protocol_matrix = protocol_matrix';
 
 channel = "awgn";
 % channel = "rayleigh";
-snr = 0;
+snr = 10;
 
 stft_win_length = 256 * 2;
 stft_dft_length = stft_win_length * 2;

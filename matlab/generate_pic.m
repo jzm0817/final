@@ -2,7 +2,7 @@
 function generate_pic(path, protocol_type, package_len, slot_info,       ...
                         mod_para, fs, freq, sample_length,               ...
                         stft_win, stft_dft_length, stft_overlap_length,  ...
-                        pic_number, varargin)
+                        pic_number, prob_vec, varargin)
 
     mem_num = size(fieldnames(mod_para), 1);
 
@@ -32,7 +32,8 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
         for j = 1:1:pic_number
             src_signal = [];
             for k = 1:1:size(freq, 2)
-                ss = pro_src_data(fs, sample_length, freq(k), mod_para, protocol_type{i}, slot_info);
+                prob = randsrc(1, 1, [prob_vec; ones(size(prob_vec, 1), size(prob_vec, 2)) / length(prob_vec)]);
+                ss = pro_src_data(fs, sample_length, freq(k), mod_para, protocol_type{i}, prob, slot_info);
                 % channel, snr
                 src_signal(k, :) = ss.ss;
                 % if channel == "awgn"

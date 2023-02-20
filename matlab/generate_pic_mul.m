@@ -3,7 +3,7 @@
 function generate_pic_mul(path, protocol_matrix, package_len, slot_info,  ...
     mod_para, fs, freq, sample_length,               ...
     stft_win, stft_dft_length, stft_overlap_length,  ...
-    pic_number, varargin)
+    pic_number, prob_vec, varargin)
 
     mem_num = size(fieldnames(mod_para), 1);
 
@@ -24,7 +24,8 @@ function generate_pic_mul(path, protocol_matrix, package_len, slot_info,  ...
         src_signal = [];
         if size(freq, 1) > 1
             for k = 1:1:size(freq, 1)
-                ss = pro_src_data(fs, sample_length, freq(k, i), mod_para, protocol_matrix(k, i), slot_info);
+                prob = randsrc(1, 1, [prob_vec; ones(size(prob_vec, 1), size(prob_vec, 2)) / length(prob_vec)]);
+                ss = pro_src_data(fs, sample_length, freq(k, i), mod_para, protocol_matrix(k, i), prob, slot_info);
                 src_signal(k, :) = ss.ss;
             end
             src_signal = sum(src_signal);

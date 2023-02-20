@@ -5,7 +5,7 @@ close all;
 t_type = "protocol";
 data_type = "test";
 
-file_number = 2;
+file_number = 8;
 
 if ispc()
     para_path = "D:/workspace/art/data_info_mat/";
@@ -66,7 +66,7 @@ for i = vec
     load(para_path + file_name(i));
     
     if flag
-        delete(h5file_path + file_name_h5(index));
+        % delete(h5file_path + file_name_h5(index));
     end
     if exist("channel") ~= 1
         channel = "awgn";
@@ -83,12 +83,12 @@ for i = vec
         generate_pic(save_pic_path, protocol_type, package_len, slot_info, ...
                     mod_para, fs, freq, sample_length,...
                     stft_win, stft_dft_length, stft_overlap_length, ...
-                    pic_number, channel, channel_info);
+                    pic_number, prob_vec, channel, channel_info);
     else
         generate_pic_mul(save_pic_path, protocol_matrix, package_len, slot_info, ...
                     mod_para, fs, freq, sample_length,...
                     stft_win, stft_dft_length, stft_overlap_length, ...
-                    pic_number, channel, channel_info);
+                    pic_number, prob_vec, channel, channel_info);
 
     end
     

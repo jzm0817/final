@@ -22,6 +22,7 @@ classdef pro_src_data
         seg_label;
         seg_label_sort;
         extend_serial;
+        prob;
     end
 
     methods
@@ -33,7 +34,7 @@ classdef pro_src_data
         %%%   TMDA & slotted ALOHA:  fix slot   
         %%%   CSMA & ALOHA:          not fix slot
         %%%
-        function obj = pro_src_data(fs, sample_length, freq_pattern, modulation_para, protocol_type, varargin)
+        function obj = pro_src_data(fs, sample_length, freq_pattern, modulation_para, protocol_type, prob, varargin)
             
         obj.fs = fs;
         obj.member_num = size(fieldnames(modulation_para), 1);
@@ -42,7 +43,7 @@ classdef pro_src_data
         obj.protocol_type = lower(protocol_type);
         obj.modulation_para = modulation_para;
         obj.extend_serial = 1.05;
-
+        obj.prob = prob;
         %% get member_name
         obj.member_name = string(fieldnames(obj.modulation_para));
         %% generate empty mapping 
@@ -194,11 +195,11 @@ classdef pro_src_data
             case 'tdma'
                 seq = obj.generate_label_table(0, 0);
             case 'slottedaloha'
-                seq = obj.generate_label_table(1, 0.1);
+                seq = obj.generate_label_table(1, obj.prob);
             case 'csma'
                 seq = obj.generate_label_table_for_package(0, 0);
             case 'aloha'
-                seq = obj.generate_label_table_for_package(1, 0.1);
+                seq = obj.generate_label_table_for_package(1, obj.prob);
             otherwise
                 throw("not supported protocol \n")
             end
