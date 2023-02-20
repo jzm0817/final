@@ -18,8 +18,14 @@ protocol_type = {"TDMA", "ALOHA", "CSMA", "SLOTTEDALOHA"};
 package_len = [1000, 1000, 1000];
 
 mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_length", package_len(1), "package_number", 5), ...
-"mem1", struct("mod", "psk", "symbol_rate", 5e6, "order", 2, "package_length", package_len(2), "package_number", 5), ...
-"mem2", struct("mod", "qam", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
+"mem1", struct("mod", "qam", "symbol_rate", 5e6, "order", 8, "package_length", package_len(2), "package_number", 5), ...
+"mem2", struct("mod", "psk", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
+
+% mod_para = struct("mem0", struct("mod", "psk", "symbol_rate", 5e6, "order", 4, "package_length", package_len(1), "package_number", 5), ...
+% "mem1", struct("mod", "psk", "symbol_rate", 5e6, "order", 4, "package_length", package_len(2), "package_number", 5), ...
+% "mem2", struct("mod", "psk", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
+
+
 
 fs = 610e6;              %%% sample rate
 mem_num = size(fieldnames(mod_para), 1);     %%%  get number of fh signal
@@ -28,7 +34,7 @@ mem_num = size(fieldnames(mod_para), 1);     %%%  get number of fh signal
 l = link16(mem_num, 5, 0, fs);
 % freq = randsample(l.freq_table, 1)
 freq = 969;
-freq1 = 100;
+freq1 = 1003;
 
 sample_length = 40000;
 slot_len = 1000;
@@ -51,7 +57,7 @@ slot_info = struct("slot_length", slot_len);
 channel = "awgn";
 snr = 5000;
 
-win_length = 256 * 2;
+win_length = 256 * 2 * 1;
 dft_length = win_length * 2;
 win = hann(win_length);
 overlap_length = round(0.75 * win_length);
@@ -59,8 +65,8 @@ overlap_length = round(0.75 * win_length);
 for i = 1:1:1
 
     for j = 1:1:1
-        ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{1}, slot_info);
-        ss1 = pro_src_data(fs, sample_length, freq1, mod_para, protocol_type{2}, slot_info);
+        ss = pro_src_data(fs, sample_length, freq, mod_para, protocol_type{2}, slot_info);
+        ss1 = pro_src_data(fs, sample_length, freq1, mod_para, protocol_type{1}, slot_info);
         if isempty(channel)
             src_signal = ss.ss;
             src_signal1 = ss1.ss;
@@ -76,8 +82,10 @@ for i = 1:1:1
             src_signal = rayleighchan(ss.ss');
             src_signal1 = rayleighchan(ss1.ss');
         end
-        
-        sig_src_tfspec = stft(src_signal + src_signal1, fs, 'FFTLength', dft_length, ...
+
+        % sig_src = src_signal + src_signal1;
+        sig_src = src_signal;
+        sig_src_tfspec = stft(sig_src, fs, 'FFTLength', dft_length, ...
         'Window', win, 'Centered', false, 'OverlapLength', overlap_length);
         %%% draw source signal   (time-frequency domain)
         % figure('visible', 'off');

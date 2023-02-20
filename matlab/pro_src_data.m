@@ -192,13 +192,13 @@ classdef pro_src_data
         function seq = arrange(obj)
             switch obj.protocol_type
             case 'tdma'
-                seq = obj.generate_label_table(0);
+                seq = obj.generate_label_table(0, 0);
             case 'slottedaloha'
-                seq = obj.generate_label_table(1);
+                seq = obj.generate_label_table(1, 0.1);
             case 'csma'
-                seq = obj.generate_label_table_for_package(0);
+                seq = obj.generate_label_table_for_package(0, 0);
             case 'aloha'
-                seq = obj.generate_label_table_for_package(1);
+                seq = obj.generate_label_table_for_package(1, 0.1);
             otherwise
                 throw("not supported protocol \n")
             end
@@ -206,7 +206,7 @@ classdef pro_src_data
         end
 
 
-        function label_table = generate_label_table(obj, occupied_flag)
+        function label_table = generate_label_table(obj, occupied_flag, prob)
 
             package_length2slot_num = ceil(obj.package_length ./ obj.slot_length_per);
             slot_number_in_sample = floor(obj.sample_length ./ obj.slot_length_per);
@@ -219,7 +219,14 @@ classdef pro_src_data
             start_stop_table = [];
             
             if occupied_flag
-                slot_label = randi(slot_number_in_sample, [1, sum(package_length2slot_num' .* obj.package_number')]);
+                % slot_label = randi(slot_number_in_sample, [1, sum(package_length2slot_num' .* obj.package_number')]);
+                slot_label = randperm(slot_number_in_sample, sum(package_length2slot_num' .* obj.package_number'));
+                num_cof = ceil(prob * length(slot_label));
+                if num_cof 
+                    slot_label(1:num_cof + 1) = ones(1, num_cof + 1) * slot_label(1);
+                else
+                    slot_label;
+                end
             else
                 slot_label = randperm(slot_number_in_sample, sum(package_length2slot_num' .* obj.package_number'));
             end
@@ -238,7 +245,7 @@ classdef pro_src_data
         end
 
 
-        function label_table_for_package = generate_label_table_for_package(obj, occupied_flag)
+        function label_table_for_package = generate_label_table_for_package(obj, occupied_flag, prob)
             package_len_max = max(obj.package_length);
             package_number_in_sample = floor(obj.sample_length ./ package_len_max);
             % extend_serial = 1.01;
@@ -248,7 +255,14 @@ classdef pro_src_data
             start_stop_table = [];
             serial = 0.5;
             if occupied_flag
-                package_label = randi(package_number_in_sample, [1, sum(obj.package_number)]);
+                package_label = randperm(package_number_in_sample, sum(obj.package_number));
+                % package_label = randi(package_number_in_sample, [1, sum(obj.package_number)]);
+                num_cof = ceil(prob * length(package_label));
+                if num_cof 
+                    package_label(1:num_cof + 1) = ones(1, num_cof + 1) * package_label(1);
+                else
+                    package_label;
+                end
                 a = -1;
                 b = 1;
                 for i = 1:1:length(package_label)
@@ -264,7 +278,6 @@ classdef pro_src_data
                 end
             else
                 package_label = randperm(package_number_in_sample, sum(obj.package_number));
-
 
                 for i = 1:1:length(package_label)
                     if package_label(i) == 1
