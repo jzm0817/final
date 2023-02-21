@@ -9,6 +9,7 @@ import net
 import argparse
 from torchvision import transforms
 import hiddenlayer as h
+import torch.nn.functional as F
 
 def default_argument_parser():
     parser = argparse.ArgumentParser(description="pytorch-learning")
@@ -52,6 +53,7 @@ pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
 batch_size = 32
 epoch = 100
 learning_rate = 1e-3
+
 # nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
 #             ('max_pool1', nn.MaxPool2d(kernel_size=2)),
 #             ('relu1', nn.ReLU(inplace=True)),
@@ -65,10 +67,40 @@ learning_rate = 1e-3
 #             ('affine3', nn.Linear(10, 4)),
 #             ]
 
+class SE(nn.Module):
 
-# nn_list = OrderedDict(nn_list)
-# model = net.neuralnetwork(nn_list)
-model = net.resnet(net.residual_block, [2,2,2,2])
+    def __init__(self, in_chnls, ratio):
+        super(SE, self).__init__()
+        self.squeeze = nn.AdaptiveAvgPool2d((1, 1))
+        self.compress = nn.Conv2d(in_chnls, in_chnls//ratio, 1, 1, 0)
+        self.excitation = nn.Conv2d(in_chnls//ratio, in_chnls, 1, 1, 0)
+
+    def forward(self, x):
+        out = self.squeeze(x)
+        out = self.compress(out)
+        out = F.relu(out)
+        out = self.excitation(out)
+        return F.sigmoid(out)
+
+
+nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
+            ('max_pool1', nn.MaxPool2d(kernel_size=2)),
+            ('relu1', nn.ReLU(inplace=True)),
+            ('conv2', nn.Conv2d(10, 32, kernel_size=5)),
+            ('max_pool2', nn.MaxPool2d(kernel_size=2)),
+            ('relu2', nn.ReLU(inplace=True)),
+            ('dropout1', nn.Dropout2d()),
+            ('flatten1', nn.Flatten(start_dim=1)),
+            ('affine1', nn.Linear(32 * 45 * 45, 50)),
+            ('affine2', nn.Linear(50, 10)),
+            ('affine3', nn.Linear(10, 4)),
+            ]
+
+
+
+nn_list = OrderedDict(nn_list)
+model = net.neuralnetwork(nn_list)
+# model = net.resnet(net.residual_block, [2,2,2,2])
 
 trainpar = net.trainpar(batch_size, learning_rate, epoch, model, pic_size, pic_list, pic_enhance_list)
 

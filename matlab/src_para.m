@@ -3,16 +3,16 @@ clear;
 close all;
 
 save2mat = 1;
-index = 8;
+index = 1;
 pic_number = 200;
-multi = 1;
-freq_num = 3;
+multi = 0;
+freq_num = 1;
 rand_select = 1;
 % data_type = "training";
 data_type = "test";
 cnt = pic_number * freq_num;
 
-prob_vec = [0.1];
+prob_vec = [0.1, 0.2, 0.3];
 package_len = [1000, 1000, 1000];
 sample_length = 40000;
 slot_len = 1000;
