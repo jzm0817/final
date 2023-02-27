@@ -29,6 +29,7 @@ classdef tfdec
         doa_est_;                      %% save doa (estimation, bss)
         hop_vec;                       %% save signal segment (estimation)
         hop; 
+        antenna_num;
 
         f_resolution;                  %% resolution according to length of window
         dft_resolution;                %% resolution according to length of dft
@@ -51,11 +52,12 @@ classdef tfdec
 
     methods
         %% constructor
-        function obj = tfdec(signal_input, win, overlap_length, dft_length, fs, th, net)
+        function obj = tfdec(signal_input, win, overlap_length, dft_length, fs, th, ant_num, net)
             obj.fs = fs;
             obj.th = th;
             obj.win = win;
             obj.rx = signal_input;
+            obj.antenna_num = ant_num;
             obj.win_length = length(win);
             obj.overlap_length = overlap_length;
             obj.dft_length = dft_length;
@@ -66,7 +68,7 @@ classdef tfdec
             obj.index_delta_max = round(1 * (obj.band_width / (obj.fs / obj.dft_length)));      %% min interval
 
             %% using bss method to estimate doa, at least two antenna are needed
-            for i = 1:1:2
+            for i = 1:1:obj.antenna_num
                 %% stft
                 [s, f, t] = stft(signal_input.receive_signal(i, :), obj.fs, 'FFTLength', obj.dft_length, 'Window', obj.win, 'Centered', false, 'OverlapLength', obj.overlap_length);
                 %% save stft result
@@ -185,25 +187,9 @@ classdef tfdec
 
         %% parameter estimation
         function [f_est, doa_est_, hop_vec, num] = get_res(obj)
-           
-            %% convert map container to matrix
+
             label = obj.label("1");
-
-            %% find maximum length in map container
-            mx_len = length(label("col" + string(0)));
-            for i = 1:1:label.length - 1
-                if mx_len < length(label("col" + string(i)))
-                    mx_len = length(label("col" + string(i)));
-                end
-            end
-            
-            %% label matirx
-            label_m = zeros(mx_len, length(label));
-            
-            for i = 1:1:label.length
-                label_m(:, i) = [label("col" + string(i-1)); zeros(mx_len - length(label("col" + string(i-1))), 1)];
-            end
-
+            label_m = obj.map2matrix(label);
             %% label_vec contain the number of frequency
             label_vec = [];
             for i = 1:1:size(label_m, 2)
@@ -218,81 +204,76 @@ classdef tfdec
             %% maybe frequency change time
             label_greate = find(label_vec > num_est);
 
-            %% find empty zone column
-            if ~isempty(label_zero)
+            label_seg = obj.freq_hop_label(label_zero, label_greate, label_vec, num_est, label_m);
 
-                %% preserve interval
-                delta_zero = 5;
-                label_zero_temp = [];
-                for i = 1:1:length(label_zero) - 1
-                    if (label_zero(i + 1) - label_zero(i) > delta_zero)
-                        label_zero_temp = [label_zero_temp, i];
-                    end
-                end
+            [doa_est_, f_est] = obj.doa_ula(label_seg, num_est, label_m);
 
-                label_zero_seg = [];
 
-                for i = 1:1:length(label_zero_temp)
-                    label_zero_seg = [label_zero_seg, label_zero(label_zero_temp(i)), label_zero(label_zero_temp(i) + 1)];
-                end
-                label_zero_seg = [label_zero(1), label_zero_seg, label_zero(end)];
+            hop =  diff(label_seg(2:end) * (obj.win_length - obj.overlap_length));
+
+            hop_vec = label_seg;
+            
+              
+            for i = 2:2:length(label_seg) - 1
+                hop_vec(i) = hop_vec(i) * (obj.win_length - obj.overlap_length);
+                hop_vec(i+1) = hop_vec(i) + 1;
             end
+            
+            hop_vec(end) = size(obj.rx.receive_signal, 2);
+            
+            %%% music algorithm to estimate DOA   
+            % a_vec = zeros(obj.rx.antenna_num, 1);
+            % delta_theta = 2;
+            % angle_scan = -90:delta_theta:90 - delta_theta;
+            % p_mu = zeros(1, length(angle_scan));
 
-            %% find frequency change time
-            label_jmp = [];
+            % doa_est = zeros(size(f_est));
 
-            %% find frequency change time
-            if ~isempty(label_greate)
+            % eig_val_m = [];
+            % p_m = zeros(num_est, length(p_mu), round(length(label_seg) / 2));
 
-                delta_greate = 10;
-                label_delta = 2;
-                %% search range
-                span = 10;
+            % for ii = 1:2:length(hop_vec)
+
+            %     xx = obj.rx.receive_signal(:, hop_vec(ii) + 2:hop_vec(ii + 1) - 2);
+            %     xx_len = size(xx, 2);
+
+            %     rxx = zeros(obj.rx.antenna_num, obj.rx.antenna_num);
+            %     rxx = (1 / xx_len) .* (xx * xx');
+
+            %     [V, D] = eig(rxx);
+            %     eig_val = diag(V);
+
+            %     eig_val_m(round(ii / 2), :) = eig_val;
+
+            %     Us = V(:, end - num_est + 1:end);
+            %     Un = V(:, 1:end - num_est);
+
                 
-                for i = 1:1:length(label_greate)
+            %     for i = 1:1:size(f_est, 1)
 
-                    if (label_greate(i) < delta_greate) || (label_greate(i) > length(label_vec) - delta_greate)
-                        continue;
-                    else
-                        cnt = 1;
-                        while(cnt < span)
-                            if (label_vec(label_greate(i) - cnt) == label_vec(label_greate(i) + cnt)) && ...
-                                (sum(abs(label_m(1:num_est, label_greate(i) - cnt) - label_m(1:num_est, label_greate(i) + cnt))) > num_est * label_delta);
-                                
-                                label_jmp = [label_jmp, label_greate(i)];
-                                cnt = 20;
-                            end
-                            cnt = cnt + 1;
-                        end
-                    end
+            %         for theta = 1:length(angle_scan) 
+            %             a = exp(1j * 2 * pi * 0.1 / (3e8 / (f_est(i, round(ii / 2)) * 1e6)) * sin(angle_scan(theta) / 180 * pi) * (0 : obj.rx.antenna_num - 1)');
+            %             p_mu(theta) = 1 / (a' * Un * Un' * a);
+            %             p_m(i, :, round(ii / 2)) = p_mu';
+            %         end
 
-                end
-                %% real frequency change time
-                label_jmp = unique([label_jmp, size(label_m, 2)]);
-            end
+            %         doa_est(i, round(ii / 2)) = mean(angle_scan(find(abs(p_mu) == max(abs(p_mu)))));
+            %     end
 
-            %% real frequency change time
-            if ~isempty(label_jmp)
+            %     p_scan = p_m;
 
-                jmp_delta = 10;
-                label_jmp_diff = diff(label_jmp);
-                find(label_jmp_diff > jmp_delta);
-                label_jmp = label_jmp(find(label_jmp_diff > jmp_delta));
-                label_jmp = [1, label_jmp, size(label_m, 2)];
-            end
+            % end
 
-            label_seg = [];
-            %% find start and end within a hop signal
-            if (~isempty(label_jmp)) && (~isempty(label_zero))
-                label_seg = sort([label_jmp, label_jmp(2:end-1) + 1, label_zero_seg]);
-            else
-                label_seg = sort([label_jmp, label_jmp(2:end-1) + 1]);
-            end
+        end
 
 
+        function [doa_est, f_est] = doa_ula(obj, label_seg, num_est, label_m)
             a_est = [];
             l_temp = [];
             f_est = [];
+            doa_est_ = [];
+            num_est = num_est;
+            label_m = label_m;
             %% convert two stagnation point contianer map to matirx
             %% label_d_1 means antenna 1, label_d_2 means antenna 2
             label_d_1 = obj.label_d("1");
@@ -373,62 +354,109 @@ classdef tfdec
                 l_temp = [];
                 
             end
+            doa_est = doa_est_;
+            f_est = f_est;
+        end
 
-            hop =  diff(label_seg(2:end) * (obj.win_length - obj.overlap_length));
-
-            hop_vec = label_seg;
-            
-              
-            for i = 2:2:length(label_seg) - 1
-                hop_vec(i) = hop_vec(i) * (obj.win_length - obj.overlap_length);
-                hop_vec(i+1) = hop_vec(i) + 1;
+        
+        function matrix = map2matrix(obj, input_map)
+            label = input_map;
+            %% find maximum length in map container
+            mx_len = length(label("col" + string(0)));
+            for i = 1:1:label.length - 1
+                if mx_len < length(label("col" + string(i)))
+                    mx_len = length(label("col" + string(i)));
+                end
             end
             
-            hop_vec(end) = size(obj.rx.receive_signal, 2);
+            %% label matirx
+            label_m = zeros(mx_len, length(label));
             
-            %%% music algorithm to estimate DOA   
-            % a_vec = zeros(obj.rx.antenna_num, 1);
-            % delta_theta = 2;
-            % angle_scan = -90:delta_theta:90 - delta_theta;
-            % p_mu = zeros(1, length(angle_scan));
+            for i = 1:1:label.length
+                label_m(:, i) = [label("col" + string(i-1)); zeros(mx_len - length(label("col" + string(i-1))), 1)];
+            end
 
-            % doa_est = zeros(size(f_est));
+            matrix = label_m;
+        end
 
-            % eig_val_m = [];
-            % p_m = zeros(num_est, length(p_mu), round(length(label_seg) / 2));
 
-            % for ii = 1:2:length(hop_vec)
+        function label = freq_hop_label(obj, input_label, label_greate, label_vec, num_est, label_m)
+            %% find empty zone column
+            label_zero = input_label;
+            label_greate = label_greate;
+            label_vec = label_vec;
+            num_est = num_est;
+            if ~isempty(label_zero)
 
-            %     xx = obj.rx.receive_signal(:, hop_vec(ii) + 2:hop_vec(ii + 1) - 2);
-            %     xx_len = size(xx, 2);
+                %% preserve interval
+                delta_zero = 5;
+                label_zero_temp = [];
+                for i = 1:1:length(label_zero) - 1
+                    if (label_zero(i + 1) - label_zero(i) > delta_zero)
+                        label_zero_temp = [label_zero_temp, i];
+                    end
+                end
 
-            %     rxx = zeros(obj.rx.antenna_num, obj.rx.antenna_num);
-            %     rxx = (1 / xx_len) .* (xx * xx');
+                label_zero_seg = [];
 
-            %     [V, D] = eig(rxx);
-            %     eig_val = diag(V);
+                for i = 1:1:length(label_zero_temp)
+                    label_zero_seg = [label_zero_seg, label_zero(label_zero_temp(i)), label_zero(label_zero_temp(i) + 1)];
+                end
+                label_zero_seg = [label_zero(1), label_zero_seg, label_zero(end)];
+            end
 
-            %     eig_val_m(round(ii / 2), :) = eig_val;
+            %% find frequency change time
+            label_jmp = [];
 
-            %     Us = V(:, end - num_est + 1:end);
-            %     Un = V(:, 1:end - num_est);
+            %% find frequency change time
+            if ~isempty(label_greate)
 
+                delta_greate = 10;
+                label_delta = 2;
+                %% search range
+                span = 10;
                 
-            %     for i = 1:1:size(f_est, 1)
+                for i = 1:1:length(label_greate)
 
-            %         for theta = 1:length(angle_scan) 
-            %             a = exp(1j * 2 * pi * 0.1 / (3e8 / (f_est(i, round(ii / 2)) * 1e6)) * sin(angle_scan(theta) / 180 * pi) * (0 : obj.rx.antenna_num - 1)');
-            %             p_mu(theta) = 1 / (a' * Un * Un' * a);
-            %             p_m(i, :, round(ii / 2)) = p_mu';
-            %         end
+                    if (label_greate(i) < delta_greate) || (label_greate(i) > length(label_vec) - delta_greate)
+                        continue;
+                    else
+                        cnt = 1;
+                        while(cnt < span)
+                            if (label_vec(label_greate(i) - cnt) == label_vec(label_greate(i) + cnt)) && ...
+                                (sum(abs(label_m(1:num_est, label_greate(i) - cnt) - label_m(1:num_est, label_greate(i) + cnt))) > num_est * label_delta);
+                                
+                                label_jmp = [label_jmp, label_greate(i)];
+                                cnt = 20;
+                            end
+                            cnt = cnt + 1;
+                        end
+                    end
 
-            %         doa_est(i, round(ii / 2)) = mean(angle_scan(find(abs(p_mu) == max(abs(p_mu)))));
-            %     end
+                end
+                %% real frequency change time
+                label_jmp = unique([label_jmp, size(label_m, 2)]);
+            end
+            
 
-            %     p_scan = p_m;
+            if ~isempty(label_jmp)
 
-            % end
+                jmp_delta = 10;
+                label_jmp_diff = diff(label_jmp);
+                find(label_jmp_diff > jmp_delta);
+                label_jmp = label_jmp(find(label_jmp_diff > jmp_delta));
+                label_jmp = [1, label_jmp, size(label_m, 2)];
+            end
 
+            label_seg = [];
+            %% find start and end within a hop signal
+            if (~isempty(label_jmp)) && (~isempty(label_zero))
+                label_seg = sort([label_jmp, label_jmp(2:end-1) + 1, label_zero_seg]);
+            else
+                label_seg = sort([label_jmp, label_jmp(2:end-1) + 1]);
+            end
+
+            label = label_seg;
         end
 
 
