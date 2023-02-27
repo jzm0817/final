@@ -28,29 +28,29 @@ class trainpar():
 class residual_block(nn.Module):
     def __init__(self, ch_in, ch_out, stride=1, downsample=None):
         super().__init__()
-        self.conv1=nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn1=nn.BatchNorm2d(ch_out)
-        self.relu=nn.ReLU(inplace=True)
+        self.conv1 = nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(ch_out)
+        self.relu = nn.ReLU(inplace=True)
         
-        self.conv2=nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn2=nn.BatchNorm2d(ch_out)
-        self.downsample=downsample
+        self.conv2 = nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(ch_out)
+        self.downsample = downsample
 
     
     def forward(self, x):
-        residual=x
+        residual = x
         
-        out=self.conv1(x)
-        out=self.bn1(out)
-        out=self.relu(out)
-        out=self.conv2(out)
-        out=self.bn2(out)
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+        out = self.conv2(out)
+        out = self.bn2(out)
         
         if self.downsample:
-            residual=self.downsample(x)
+            residual = self.downsample(x)
         
-        out+=residual
-        out=self.relu(out)
+        out += residual
+        out = self.relu(out)
 
         return out
 

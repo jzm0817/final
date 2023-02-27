@@ -4,12 +4,12 @@ close all;
 
 save2mat = 1;
 index = 1;
-pic_number = 2000;
+pic_number = 200;
 multi = 0;
 freq_num = 1;
 rand_select = 1;
-data_type = "training";
-% data_type = "test";
+% data_type = "training";
+data_type = "test";
 cnt = pic_number * freq_num;
 
 prob_vec = [0.1, 0.2, 0.3];

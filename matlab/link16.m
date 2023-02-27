@@ -80,12 +80,12 @@ classdef link16
         function freq_pattern = generate_freq_pattern(obj, num, N, net_interval)
 
             f = freq_table_samll(obj, num, 30)';
-
+            timer_limit = 100;
             if num > 1
                 cnt = 1;
                 while cnt < N
                     flag = 1;
-                    
+                    timer = 1;
                     while flag
                         f1 = freq_table_samll(obj, num, 30)';
 
@@ -93,6 +93,10 @@ classdef link16
                             f = [f, f1];
                             flag = 0;
                             cnt = cnt + 1;
+                            timer = timer + 1;
+                        end
+                        if timer > timer_limit
+                            flag = 0;
                         end
                     end
                 end

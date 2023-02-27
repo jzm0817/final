@@ -46,7 +46,7 @@ classdef rx_signal
         %% ULA delay factor
         function ula_row_vec = ula_row_element(obj, element_distance, freq, theta)
 
-            ula_row_vec = exp(1j * 2 * pi  * element_distance * freq .* sind(theta) / (3e8));
+            ula_row_vec = exp(-1j * 2 * pi  * element_distance * freq .* sind(theta) / (3e8));
 
         end
 

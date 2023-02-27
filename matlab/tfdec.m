@@ -360,7 +360,7 @@ classdef tfdec
                 %%% bss method to estimate DOA   
                 l = link16(1, 2, 30, obj.fs);
                 f_est(:,  round(i / 2)) = l.ifreq_mapping((l_est(:,  round(i / 2)) - 1) * obj.fs / obj.dft_length * 1e-6);
-                doa_est_m = asind(atan(imag(a_est_mod) ./ (real(a_est_mod) + 1e-31)) * 3e8 ./ (2 * pi * f_est(:,round(i / 2)) * 1e6 * 0.1));
+                doa_est_m = -asind(atan(imag(a_est_mod) ./ (real(a_est_mod) + 1e-31)) * 3e8 ./ (2 * pi * f_est(:,round(i / 2)) * 1e6 * 0.1));
                 
 
                 for k = 1:1:size(doa_est_m, 1)

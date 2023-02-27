@@ -19,6 +19,7 @@ classdef fh
     properties 
         freq_pattern;
         theta_pattern;
+        phi_pattern;
         member_num;
         % modualtion_table;
         hop_num;
@@ -34,7 +35,7 @@ classdef fh
 
     methods
         %% constructor
-        function obj = fh(fs, member_num, hop_num, hop_length, network_interval, freq_pattern, theta_pattern, modulation_para)
+        function obj = fh(fs, member_num, hop_num, hop_length, network_interval, freq_pattern, theta_pattern, phi_pattern, modulation_para)
 
         obj.fs = fs;
         obj.member_num = member_num;
@@ -43,6 +44,7 @@ classdef fh
         obj.network_interval = network_interval;
         obj.freq_pattern = freq_pattern;
         obj.theta_pattern = theta_pattern;
+        obj.phi_pattern = phi_pattern;
     
         %% check two numbers are equal
         if ~(obj.member_num == size(fieldnames(modulation_para), 1))
