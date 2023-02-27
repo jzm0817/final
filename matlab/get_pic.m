@@ -22,7 +22,7 @@ elseif isunix()
 end
 
 file_name = get_files(para_path);
-file_name_h5 = get_files(h5file_path);
+% file_name_h5 = get_files(h5file_path);
 
 
 if  exist("file_number")
@@ -37,17 +37,17 @@ for i = vec
     para_info = tt{1};
 
 
-    flag = 0;
-    index = 1;
-    for k = 1:1:length(file_name_h5)
-        tt = strsplit(file_name_h5(k), '_');
-        num = tt{3};
+    % flag = 0;
+    % index = 1;
+    % for k = 1:1:length(file_name_h5)
+    %     tt = strsplit(file_name_h5(k), '_');
+    %     num = tt{3};
 
-        if data_type + '_' + num == para_info
-            flag = 1;
-            index = k;
-        end
-    end
+    %     if data_type + '_' + num == para_info
+    %         flag = 1;
+    %         index = k;
+    %     end
+    % end
     if ispc()
         save_pic_path= "D:/workspace/art/pic/protocol/" + t_type  + "_" + para_info; 
     elseif isunix()

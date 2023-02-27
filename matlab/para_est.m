@@ -6,7 +6,8 @@ close all;
 %%% only support this input format 
 mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6), ...
                   "mem1", struct("mod", "msk", "symbol_rate", 5e6), ...
-                  "mem2", struct("mod", "msk", "symbol_rate", 5e6));
+                  "mem2", struct("mod", "msk", "symbol_rate", 5e6), ...
+                  "mem3", struct("mod", "msk", "symbol_rate", 5e6));
 
 fs = 610e6;              %%% sample rate
 hop_period = 76923;      %%% period of frequency hopping signal (hop/s)
@@ -20,7 +21,7 @@ l = link16(mem_num, hop_num, net_interval, fs);
 freq_pattern = l.freq_pattern;   %%% real frequency pattern 
 
 %%%  real doa
-union_doa = 10;
+union_doa = 5;
 doa_pattern = repmat((1:1:size(fieldnames(mod_para), 1))' .* union_doa, 1, hop_num);
 
 %%%  return fh class "fh_ss" according to the input parameters

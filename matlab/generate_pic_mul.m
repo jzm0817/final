@@ -24,7 +24,8 @@ function generate_pic_mul(path, protocol_matrix, package_len, slot_info,  ...
         src_signal = [];
         if size(freq, 1) > 1
             for k = 1:1:size(freq, 1)
-                prob = randsrc(1, 1, [prob_vec; ones(size(prob_vec, 1), size(prob_vec, 2)) / length(prob_vec)]);
+                prob = randsrc(1, 1, [prob_vec; 0.7, 0.2, 0.1]);
+                % prob = randsrc(1, 1, [prob_vec; ones(size(prob_vec, 1), size(prob_vec, 2)) / length(prob_vec)]);
                 ss = pro_src_data(fs, sample_length, freq(k, i), mod_para, protocol_matrix(k, i), prob, slot_info);
                 src_signal(k, :) = ss.ss;
             end

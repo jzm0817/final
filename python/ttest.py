@@ -30,6 +30,11 @@ def main(args):
     para_index_tr = args.tr
     para_index_te = args.te
     nnpar_index = args.npa
+    
+    if args.mv:
+        pm_flag = True
+    else:
+        pm_flag = False
 
     trained_name = '_'+ 'para' + str(para_index_tr) + '_' + "nnpar_" + str(nnpar_index)
     test_name = '_'+ 'para' + str(para_index_tr) + '--' + str(para_index_te) + '_' + "nnpar_" + str(nnpar_index)
@@ -75,7 +80,7 @@ def main(args):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     data_set = ds.load_dataset_h5(file=h5file_name, pic_trans=nnpar.pic_list, \
-        pic_enhance=pic_enhance, mul=mul, create_file=create_file,\
+        pic_enhance=pic_enhance, mul=mul, create_file=create_file, pic_move = pm_flag,\
         show_pic=show_flag, index=[0, 1, 2]
     )     
     print(f'data set name   : {h5file_name}')

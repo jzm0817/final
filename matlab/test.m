@@ -36,7 +36,7 @@ l = link16(mem_num, 5, 0, fs);
 freq = 969;
 freq1 = 1003;
 
-sample_length = 40000;
+sample_length = 40000 * 1;
 slot_len = 1000;
 slot_info = struct("slot_length", slot_len);
 

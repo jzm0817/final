@@ -32,7 +32,8 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
         for j = 1:1:pic_number
             src_signal = [];
             for k = 1:1:size(freq, 2)
-                prob = randsrc(1, 1, [prob_vec; ones(size(prob_vec, 1), size(prob_vec, 2)) / length(prob_vec)]);
+                prob = randsrc(1, 1, [prob_vec; 0.7, 0.2, 0.1]);
+                % prob = randsrc(1, 1, [prob_vec; ones(size(prob_vec, 1), size(prob_vec, 2)) / length(prob_vec)]);
                 ss = pro_src_data(fs, sample_length, freq(k), mod_para, protocol_type{i}, prob, slot_info);
                 % channel, snr
                 src_signal(k, :) = ss.ss;

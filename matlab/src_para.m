@@ -4,15 +4,16 @@ close all;
 
 save2mat = 1;
 index = 1;
-pic_number = 200;
+pic_number = 2000;
 multi = 0;
 freq_num = 1;
 rand_select = 1;
-% data_type = "training";
-data_type = "test";
+data_type = "training";
+% data_type = "test";
 cnt = pic_number * freq_num;
 
 prob_vec = [0.1, 0.2, 0.3];
+% prob_vec = [0.3];
 package_len = [1000, 1000, 1000];
 sample_length = 40000;
 slot_len = 1000;
@@ -50,8 +51,12 @@ if multi
     end
 else
     if rand_select
-        l = link16(1, 1, 30, fs);
-        freq = l.freq_table(randperm(size(l.freq_table, 2), freq_num)) ;
+        l = link16(freq_num, 1, 30, fs);
+        freq = l.freq_pattern';
+        if freq_num == 1
+            freq = freq(1);
+        end
+        % freq = l.freq_table(randperm(size(l.freq_table, 2), freq_num)) ;
     else 
         freq = [1203];
     end
@@ -103,7 +108,7 @@ protocol_matrix = protocol_matrix';
 
 channel = "awgn";
 % channel = "rayleigh";
-snr = 10;
+snr = 2000000;
 
 stft_win_length = 256 * 2;
 stft_dft_length = stft_win_length * 2;

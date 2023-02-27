@@ -32,6 +32,11 @@ def create_h5file(file_name, **kwargs):
     else:
         trans_ctr_list = []
     
+    if "pic_move" in kwargs:
+        pm_flag = kwargs["pic_move"]
+    else:
+        print("para:pic_move is required")
+
     if "pic_enhance" in kwargs:
         data_enhance_list = kwargs["pic_enhance"]
         if len(data_enhance_list) > 0:
@@ -55,8 +60,10 @@ def create_h5file(file_name, **kwargs):
         # a = files[0].split('.')[0]
         for file in files:
             pic = read_image(os.path.join(cur_dir, file))
-            pic_dict = pic_move(pic)
-            pic = pic_dict[0]
+
+            pic_dict = pic_move(pic, pm_flag)
+            pic = pic_dict[0]  
+            
             pic = transform(pic)
             pic = np.array(pic).astype(np.float64)
             data_set_data.append(pic)
@@ -64,7 +71,12 @@ def create_h5file(file_name, **kwargs):
             data_set_type.append(temp.split('_')[0])
             if enhance_flag:
                 pic_temp = read_image(os.path.join(cur_dir, file))
-                pic_dict_ = pic_move(pic_temp)
+                pic_dict_ = {}
+                if pm_flag:
+                    pic_dict_ = pic_move(pic_temp)
+                else:
+                    pic_dict_ = pic_temp
+
                 pic_ = pic_dict_[0]
                 pic_ = transform(pic_)
                 pic_ = data_enhance(pic_)
@@ -96,6 +108,11 @@ def create_h5file_mul(file_name, **kwargs):
     else:
         enhance_flag = False
 
+    if "pic_move" in kwargs:
+        pm_flag = kwargs["pic_move"]
+    else:
+        print("para:pic_move is required")
+
     transform = transforms.Compose(trans_ctr_list)
     data_enhance = transforms.Compose(data_enhance_list)    
     file_path = path.h5file_path + '/' + file_name
@@ -106,16 +123,20 @@ def create_h5file_mul(file_name, **kwargs):
 
     data_set_data = []
     data_set_type = []
+
     for cur_dir, dirs, files in os.walk(pic_path + '/'):
 
         for file in files:
             pic = read_image(os.path.join(cur_dir, file))
-            pic_dict = pic_move(pic)
+
+            pic_dict = pic_move(pic, pm_flag)
+
             for i in range(0, len(pic_dict)):
                 pic = pic_dict[i]
                 pic = transform(pic)
                 pic = np.array(pic).astype(np.float64)
                 data_set_data.append(pic)
+
             temp = file.split('.')[0]
             label_tmp = temp.split('_')[0]
             label_list = label_tmp.split('-')
@@ -125,7 +146,12 @@ def create_h5file_mul(file_name, **kwargs):
 
             if enhance_flag:
                 pic_temp = read_image(os.path.join(cur_dir, file))
-                pic_dict_ = pic_move(pic_temp)
+                pic_dict_ = {}
+                if pm_flag:
+                    pic_dict_ = pic_move(pic_temp)
+                else:
+                    pic_dict_ = pic_temp
+
                 for i in range(0, len(pic_dict_)):
                     pic_ = pic_dict_[i]
                     pic_ = transform(pic_)
