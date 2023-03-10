@@ -188,27 +188,11 @@ classdef tfdec
         %% parameter estimation
         function [f_est, doa_est_, hop_vec, num] = get_res(obj)
 
-            label = obj.label("1");
-            label_m = obj.map2matrix(label);
-            %% label_vec contain the number of frequency
-            label_vec = [];
-            for i = 1:1:size(label_m, 2)
-                label_vec(i) = length(find(label_m(:, i) > 0));
-            end
-
-            %% the number of frequency
-            num_est = round(mean(label_vec(find(label_vec > 0))));
-            num = num_est;
-            %% empty zone in stft matirx
-            label_zero = find(label_vec == 0);
-            %% maybe frequency change time
-            label_greate = find(label_vec > num_est);
-
-            label_seg = obj.freq_hop_label(label_zero, label_greate, label_vec, num_est, label_m);
-
-            [doa_est_, f_est] = obj.doa_ula(label_seg, num_est, label_m);
-
-
+            [doa_est_map, f_est_map, num_est_map, label_seg_map] = obj.doa_ula(3);
+            doa_est_ = doa_est_map(string(2));
+            f_est = f_est_map(string(2));
+            num = num_est_map(string(2));
+            label_seg = label_seg_map(string(2));
             hop =  diff(label_seg(2:end) * (obj.win_length - obj.overlap_length));
 
             hop_vec = label_seg;
@@ -267,95 +251,145 @@ classdef tfdec
         end
 
 
-        function [doa_est, f_est] = doa_ula(obj, label_seg, num_est, label_m)
-            a_est = [];
-            l_temp = [];
-            f_est = [];
-            doa_est_ = [];
-            num_est = num_est;
-            label_m = label_m;
-            %% convert two stagnation point contianer map to matirx
-            %% label_d_1 means antenna 1, label_d_2 means antenna 2
-            label_d_1 = obj.label_d("1");
-            label_d_2 = obj.label_d("2");
+        function [doa_est_map, f_est_map, num_est_map, label_seg_map] = doa_ula(obj, deal_ant_num)
+            
+            if ~(deal_ant_num >= 2 && deal_ant_num <= obj.antenna_num)
+                fprintf('----------------- warning ----------------- \n');
+                fprintf("invaild values in tfdec.m/get_res (function)/obj.doa_ula(function)\n");
+                fprintf('----------------- warning ----------------- \n');
+            end
 
-            mx_len1 = length(label_d_1("col" + string(0)));
-            for i = 1:1:label_d_1.length - 1
-                if mx_len1 < length(label_d_1("col" + string(i)))
-                    mx_len1 = length(label_d_1("col" + string(i)));
+            label_m_map = containers.Map();
+            num_est_map = containers.Map();
+            label_zero_map = containers.Map();
+            label_greate_map = containers.Map();
+            label_vec_map = containers.Map();
+            label_seg_map = containers.Map();
+
+            for index = 1:1:deal_ant_num
+                
+                label = obj.label(string(index));
+                label_m = obj.map2matrix(label);
+                label_m_map(string(index)) = label_m;
+                %% label_vec contain the number of frequency
+                label_vec = [];
+                for i = 1:1:size(label_m, 2)
+                    label_vec(i) = length(find(label_m(:, i) > 0));
                 end
+                label_vec_map(string(index)) = label_vec;
+                %% the number of frequency
+                num_est_map(string(index)) = round(mean(label_vec(find(label_vec > 0))));
+
+                %% empty zone in stft matirx
+                label_zero = find(label_vec == 0);
+                label_zero_map(string(index)) = label_zero;
+                %% maybe frequency change time
+                label_greate = find(label_vec > num_est_map(string(index)));
+                label_greate_map(string(index)) = label_greate;
+                label_seg = obj.freq_hop_label(label_zero_map(string(index)), label_greate_map(string(index)), ... 
+                label_vec_map(string(index)), num_est_map(string(index)), label_m_map(string(index)));
+                label_seg_map(string(index)) = label_seg;
             end
 
-            label_d_1_m = zeros(mx_len1, length(label_d_1));
 
-            for i = 1:1:label_d_1.length
-                label_d_1_m(:, i) = [label_d_1("col" + string(i-1)); zeros(mx_len1 - length(label_d_1("col" + string(i-1))), 1)];
-            end
-
-            mx_len2 = length(label_d_2("col" + string(0)));
-            for i = 1:1:label_d_2.length - 1
-                if mx_len2 < length(label_d_2("col" + string(i)))
-                    mx_len2 = length(label_d_2("col" + string(i)));
-                end
-            end
-
-            label_d_2_m = zeros(mx_len2, length(label_d_2));
-
-            for i = 1:1:label_d_2.length
-                label_d_2_m(:, i) = [label_d_2("col" + string(i-1)); zeros(mx_len2 - length(label_d_2("col" + string(i-1))), 1)];
-            end
+            doa_est_map = containers.Map();
+            f_est_map  = containers.Map();
             
 
-            for i = 1:2:length(label_seg)
-
+            for kk = 1:1:deal_ant_num - 1
+                a_est = [];
                 l_temp = [];
-                for ii = label_seg(i):1:label_seg(i+1)
+                f_est = [];
+                doa_est_ = [];
+                %% convert two stagnation point contianer map to matirx
+                %% label_d_1 means antenna 1, label_d_2 means antenna 2
+                label_d_1 = obj.label_d(string(kk));
+                label_d_2 = obj.label_d(string(kk + 1));
 
-                    if (length(find(label_d_1_m(:, ii) > 0)) == num_est * 2) && (length(find(label_d_2_m(:, ii) > 0)) == num_est * 2)
-                        a_est(:, ii) = obj.stft_tensor(label_d_2_m(1:num_est * 2, ii) , ii, 2) ./ obj.stft_tensor(label_d_1_m(1:num_est * 2, ii), ii, 1);
-                        l_temp(:, ii) = label_m(1:num_est, ii);
+                mx_len1 = length(label_d_1("col" + string(0)));
+                for i = 1:1:label_d_1.length - 1
+                    if mx_len1 < length(label_d_1("col" + string(i)))
+                        mx_len1 = length(label_d_1("col" + string(i)));
                     end
-
                 end
-                                          
-                %% delete false column
-                del_label = [];
 
-                for j = 1:1:size(l_temp, 2)
-                    if l_temp(:, j) == zeros(size(l_temp, 1), 1)
-                        del_label(j) = j;
+                label_d_1_m = zeros(mx_len1, length(label_d_1));
+
+                for i = 1:1:label_d_1.length
+                    label_d_1_m(:, i) = [label_d_1("col" + string(i-1)); zeros(mx_len1 - length(label_d_1("col" + string(i-1))), 1)];
+                end
+
+                mx_len2 = length(label_d_2("col" + string(0)));
+                for i = 1:1:label_d_2.length - 1
+                    if mx_len2 < length(label_d_2("col" + string(i)))
+                        mx_len2 = length(label_d_2("col" + string(i)));
                     end
-                    del_label = del_label(find(del_label > 0));
                 end
-                
-                l_temp(:, del_label) = [];
-                if ~isempty(l_temp)
-                    l_est(:,  round(i / 2)) = round(mean(l_temp, 2));
-                else
-                    l_est(:,  round(i / 2)) = 0;
-                end
-                
-                a_est(:, del_label) = [];
-                a_est_mod = sqrt(a_est(1:2:end, :) .* a_est(2:2:end, :));
 
-                %%% bss method to estimate DOA   
-                l = link16(1, 2, 30, obj.fs);
-                f_est(:,  round(i / 2)) = l.ifreq_mapping((l_est(:,  round(i / 2)) - 1) * obj.fs / obj.dft_length * 1e-6);
-                doa_est_m = -asind(atan(imag(a_est_mod) ./ (real(a_est_mod) + 1e-31)) * 3e8 ./ (2 * pi * f_est(:,round(i / 2)) * 1e6 * 0.1));
-                
+                label_d_2_m = zeros(mx_len2, length(label_d_2));
 
-                for k = 1:1:size(doa_est_m, 1)
-                    doa_temp = doa_est_m(k, find(doa_est_m(k, :) > 0));
-                    doa_temp = doa_temp(find(abs(doa_temp - mean(doa_temp)) < 5));
-                    doa_est_(k, round(i / 2)) = mean(doa_temp);
+                for i = 1:1:label_d_2.length
+                    label_d_2_m(:, i) = [label_d_2("col" + string(i-1)); zeros(mx_len2 - length(label_d_2("col" + string(i-1))), 1)];
                 end
                 
-                
-                l_temp = [];
-                
-            end
-            doa_est = doa_est_;
-            f_est = f_est;
+                label_seg = label_seg_map(string(kk));
+                num_est = num_est_map(string(kk));
+                label_m = label_m_map(string(kk));
+
+                for i = 1:2:length(label_seg)
+                    l_temp = [];
+                    for ii = label_seg(i):1:label_seg(i+1)
+
+                        if (length(find(label_d_1_m(:, ii) > 0)) == num_est * 2) && (length(find(label_d_2_m(:, ii) > 0)) == num_est * 2)
+                            a_est(:, ii) = obj.stft_tensor(label_d_2_m(1:num_est * 2, ii) , ii, 2) ./ obj.stft_tensor(label_d_1_m(1:num_est * 2, ii), ii, 1);
+                            l_temp(:, ii) = label_m(1:num_est, ii);
+                        end
+
+                    end
+                                            
+                    %% delete false column
+                    del_label = [];
+
+                    for j = 1:1:size(l_temp, 2)
+                        if l_temp(:, j) == zeros(size(l_temp, 1), 1)
+                            del_label(j) = j;
+                        end
+                        del_label = del_label(find(del_label > 0));
+                    end
+                    
+                    l_temp(:, del_label) = [];
+                    if ~isempty(l_temp)
+                        l_est(:,  round(i / 2)) = round(mean(l_temp, 2));
+                    else
+                        l_est(:,  round(i / 2)) = 0;
+                    end
+                    
+                    a_est(:, del_label) = [];
+                    a_est_mod = sqrt(a_est(1:2:end, :) .* a_est(2:2:end, :));
+
+                    %%% bss method to estimate DOA   
+                    l = link16(1, 2, 30, obj.fs);
+                    f_est(:,  round(i / 2)) = l.ifreq_mapping((l_est(:,  round(i / 2)) - 1) * obj.fs / obj.dft_length * 1e-6);
+                    % doa_est_m = -asind(atan(imag(a_est_mod) ./ (real(a_est_mod) + 1e-31)) * 3e8 ./ (2 * pi * f_est(:,round(i / 2)) * 1e6 * 0.1));
+                    doa_est_m = -asind(angle(a_est_mod) * 3e8 ./ (2 * pi * f_est(:,round(i / 2)) * 1e6 * 0.1));
+
+                    for k = 1:1:size(doa_est_m, 1)
+                        doa_temp = doa_est_m(k, find(doa_est_m(k, :) > 0));
+                        doa_temp = doa_temp(find(abs(doa_temp - mean(doa_temp)) < 5));
+                        doa_est_(k, round(i / 2)) = mean(doa_temp);
+                    end
+                    
+                    f_est_map(string(kk)) = f_est;
+                    doa_est_map(string(kk)) = doa_est_;
+                    l_temp = [];
+                    
+                end
+
+             end
+            doa_est = doa_est_map;
+            f_est = f_est_map;
+            label_seg = label_seg_map;
+            num_est =  num_est_map;
         end
 
         

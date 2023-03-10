@@ -55,8 +55,8 @@ classdef rx_signal_
             for i = 1:1:size(obj.src_signal.theta_pattern, 2)
                 for j = 1:1:size(obj.src_signal.theta_pattern, 1)
                     for k = 1:1:obj.antenna_num
-                        tau = (1 / 3e8) * obj.radius * cos(2 * pi * (k - 1) / obj.antenna_num - obj.theta_pattern(j, i)) * cos(obj.phi_pattern(j, i));
-                        A(k, j, i) = exp(-1j * 2 * pi * obj.src_signal.freq_pattern(j, i) * tau);
+                        tau = (1 / 3e8) * obj.radius * cos(2 * pi * (k - 1) / obj.antenna_num - obj.phi_pattern(j, i) / 180 * pi) * cosd(obj.theta_pattern(j, i));
+                        A(k, j, i) = exp(-1j * 2 * pi * obj.src_signal.freq_pattern(j, i) * 1e6 * tau);
                     end
                 end
 

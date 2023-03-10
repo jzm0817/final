@@ -25,14 +25,41 @@ classdef link16
 
         obj.fs = fs;
         if num == 1
-            obj.freq_pattern = obj.freq_table_samll(hop_num, 30);
+            obj.freq_pattern = obj.gen_fps(hop_num, 30);
         else
-            obj.freq_pattern = obj.generate_freq_pattern(num, hop_num, net_interval);
+            % obj.freq_pattern = obj.generate_freq_pattern(num, hop_num, net_interval);
+            obj.freq_pattern = obj.gen_freq_pattern(num, hop_num, net_interval);
 
         end
-            obj.freq_mapping_base = obj.freq_mapping(obj.freq_table, obj.fs * 1e-6);
+        
+        obj.freq_mapping_base = obj.freq_mapping(obj.freq_table, obj.fs * 1e-6);
+        
         end
 
+
+        function fp = gen_freq_pattern(obj, mem_num, hop_num, net_interval)
+
+            fp = zeros(mem_num, hop_num);
+            for i = 1:1:hop_num
+                fp(:, i) = obj.gen_fps(mem_num, 30);
+            end
+        end
+
+
+        function fp = gen_fps(obj, hop_num, interval)
+            f = [];
+            f(1) = randsrc(1, 1, obj.freq_table(1:7));
+            while length(f) < hop_num
+                f_tmp = randsrc(1, 1, obj.freq_table);
+                f = [f, f_tmp];
+                f_diff = abs(diff(sort(f)));
+                label = find(f_diff < interval);
+                if ~isempty(label)
+                    f(end) = [];
+                end
+            end
+            fp = f;
+        end
 
         %% generate frequency pattern for single fh signal
         function freq_small = freq_table_samll(obj, num, interval)
@@ -53,7 +80,6 @@ classdef link16
                 if length(label) > 1
                     label = label(1);
                 end
-
 
                 if label == 1
                     if abs(f(2) - f_sel) < interval
