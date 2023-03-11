@@ -41,24 +41,37 @@ classdef link16
 
             fp = zeros(mem_num, hop_num);
             for i = 1:1:hop_num
-                fp(:, i) = obj.gen_fps(mem_num, 30);
+                [fpp, flag] = obj.gen_fps(mem_num, 30);
+                while ~flag
+                    [fpp, flag] = obj.gen_fps(mem_num, 30);
+                end
+                if flag
+                    fp(:, i) = fpp;
+                end
             end
         end
 
 
-        function fp = gen_fps(obj, hop_num, interval)
+        function [fp, flag_re] = gen_fps(obj, hop_num, interval)
             f = [];
-            f(1) = randsrc(1, 1, obj.freq_table(1:7));
-            while length(f) < hop_num
+            f(1) = randsrc(1, 1, obj.freq_table(1:end));
+            flag = 1;
+            cnt = 1;
+            while (length(f) < hop_num) && flag 
                 f_tmp = randsrc(1, 1, obj.freq_table);
                 f = [f, f_tmp];
                 f_diff = abs(diff(sort(f)));
                 label = find(f_diff < interval);
+                cnt = cnt + 1;
                 if ~isempty(label)
                     f(end) = [];
                 end
+                if cnt > 100
+                    flag = 0;
+                end
             end
             fp = f;
+            flag_re = flag;
         end
 
         %% generate frequency pattern for single fh signal

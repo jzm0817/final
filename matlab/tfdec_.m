@@ -319,11 +319,11 @@ classdef tfdec_
                 label_m = label_m_map(string(kk));
                 sol_vec = [];
 
-                for i = 1:2:2
-                % for i = 1:2:length(label_seg)
-                    l_temp = [];
+                % for i = 1:2:2
+                for i = 1:2:length(label_seg)
+                    
                     for ii = label_seg(i):1:label_seg(i+1)
-
+                        
                         if (length(find(label_d_1_m(:, ii) > 0)) == num_est * 2) && (length(find(label_d_2_m(:, ii) > 0)) == num_est * 2)
                             a_est(:, ii, 1) = obj.stft_tensor(label_d_2_m(1:num_est * 2, ii) , ii, 2) ./ obj.stft_tensor(label_d_1_m(1:num_est * 2, ii), ii, 1);
                             l_temp(:, ii, 1) = label_m(1:num_est, ii);
@@ -344,25 +344,36 @@ classdef tfdec_
                     %% delete false column
                     [l_est1, del_label1] = obj.delete_false_col(l_temp(:, :, 1), i);
                     [l_est2, del_label2] = obj.delete_false_col(l_temp(:, :, 2), i);
-                    l_est = unique([l_est1, l_est2]);
+                    l_est = unique([l_est1(find(l_est1 > 0)), l_est1(find(l_est2 > 0))]);
                     del_label = unique([del_label1, del_label2]);
-                    
-                    size(a_est)
-         
+
+                    % size(a_est)
+                    % a_est(1:1:end, 1, 1)
+                    % a_est(1:1:end, 1, 2)
+                    % a_est(1:2:end, 1, 1)
+                    % a_est(2:2:end, 1, 1)
                     % a_est(:, 1:3, 1)
                     % a_est(:, 1:3, 2)
+
                     a_mod1 = sqrt(a_est(1:2:end, :, 1) .* a_est(2:2:end, :, 1));
                     a_mod2 = sqrt(a_est(1:2:end, :, 2) .* a_est(2:2:end, :, 2));
                     % a_mod3 = sqrt(a_est(1:2:end, :, 3) .* a_est(2:2:end, :, 3));
+                    a_mod1(2:end, :) = -a_mod1(2:end, :);
+                    % a_mod1(:, 1)
+                    % a_mod2(:, 2)
                     % x1 = a_mod2 ./ a_mod1;
                     % x2 = a_mod3 ./ a_mod2;
                     size(a_mod1);
                     % a = angle(x1) ./ angle(x2);
 
+                    a_mod1(:, del_label) = [];
+                    a_mod2(:, del_label) = [];
+
+
                     a = angle(a_mod1) ./ angle(a_mod2);
                     % a = a_est(:, :, 1) ;
-                    a(:, del_label1) = [];
-                    a(:, 1)
+                    % a(:, del_label) = [];
+                    % a(:, 1)
                     % size(a)
                     % if ~(mod(size(a, 2), 2) == 0)　
                     %     a = a(:, 1:end - 1);
@@ -374,8 +385,8 @@ classdef tfdec_
                     % for c = 1:1:1
                     for c = 1:1:num_est
                         % a(c, 1)
-                        for cnt = 1:1:1
-                        % for cnt = 1:1:size(a, 2)
+                        % for cnt = 1:1:1
+                        for cnt = 1:1:size(a, 2)
                             
                             syms x;
                             eqn_left = (cos(x) - cos(2 * pi / obj.antenna_num - x)) ./ ...
@@ -388,8 +399,10 @@ classdef tfdec_
                             %     sol_vec(c, cnt) = double(sol) / pi * 180;
                             % end
                             sol_vec(:, cnt) = (real(double(sol)) * 180 / pi);
+                            
+                            
                         end
-                        sol_vec
+                        size(sol_vec)
                         sol_vec_map(string(c)) = sol_vec;
                     end
                     
@@ -398,9 +411,10 @@ classdef tfdec_
                     %     sol;
                     %     (sol) / pi * 180;
                     % end　　　　　　　　
+                    % l_est
                     % %%% bss method to estimate DOA   
                     l = link16(1, 2, 30, obj.fs);
-                    f_est(:,  round(i / 2)) = l.ifreq_mapping((l_est(:,  round(i / 2)) - 1) * obj.fs / obj.dft_length * 1e-6);
+                    f_est(:, round(i / 2)) = l.ifreq_mapping((l_est - 1) * obj.fs / obj.dft_length * 1e-6);
                    
  
                    

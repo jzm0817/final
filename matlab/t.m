@@ -5,10 +5,10 @@ close all;
 %%% parameters of frequency hopping signal  
 %%% only support this input format 
 
-mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6), ...
-                  "mem1", struct("mod", "msk", "symbol_rate", 5e6), ...
-                  "mem2", struct("mod", "msk", "symbol_rate", 5e6), ...
-                  "mem3", struct("mod", "msk", "symbol_rate", 5e6));
+% mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6), ...
+%                   "mem1", struct("mod", "msk", "symbol_rate", 5e6), ...
+%                   "mem2", struct("mod", "msk", "symbol_rate", 5e6), ...
+%                   "mem3", struct("mod", "msk", "symbol_rate", 5e6));
 
 % mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6), ...
 %                   "mem1", struct("mod", "msk", "symbol_rate", 5e6), ...
@@ -16,9 +16,11 @@ mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6), ...
 %                   "mem3", struct("mod", "msk", "symbol_rate", 5e6), ...
 %                   "mem4", struct("mod", "msk", "symbol_rate", 5e6));
 
-% mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6), ...
-%                   "mem1", struct("mod", "msk", "symbol_rate", 5e6), ...
-%                   "mem2", struct("mod", "msk", "symbol_rate", 5e6));
+mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6), ...
+                  "mem1", struct("mod", "msk", "symbol_rate", 5e6), ...
+                  "mem2", struct("mod", "msk", "symbol_rate", 5e6));
+
+% mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6));
 
 fs = 610e6;              %%% sample rate
 hop_period = 76923;      %%% period of frequency hopping signal (hop/s)
@@ -30,6 +32,7 @@ net_interval = 30;       %%% minimum frequency between two adjacent signal (in M
 %%%  return link16 class "l" according to the input parameters
 l = link16(mem_num, hop_num, net_interval, fs);
 freq_pattern = l.freq_pattern;   %%% real frequency pattern 
+freq_pattern = sort(freq_pattern);
 
 %%%  real doa
 union_doa = 15;
@@ -53,7 +56,7 @@ else
 end
 
 ant_num = 3;     %%% number of receive antenna
-snr = 12e6; 
+snr = 10e5; 
 %%%  return rx_signal class "rx"
 %%%  rx contains receive signal
 rx = rx_signal_(ant_num, 0.1, snr, fh_ss);
@@ -94,7 +97,6 @@ for id = 1:1:tf.num_est
 
     a = angle(x1) / angle(x2);
     % angle(x1 / x2)
-    a
 
     syms x;
     eqn_left = (cos(x) - cos(2 * pi / ant_num - x)) / ...

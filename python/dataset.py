@@ -73,9 +73,9 @@ def create_h5file(file_name, **kwargs):
                 pic_temp = read_image(os.path.join(cur_dir, file))
                 pic_dict_ = {}
                 if pm_flag:
-                    pic_dict_ = pic_move(pic_temp)
+                    pic_dict_ = pic_move(pic_temp, pm_flag)
                 else:
-                    pic_dict_ = pic_temp
+                    pic_dict_ = pic_move(pic_temp, pm_flag)
 
                 pic_ = pic_dict_[0]
                 pic_ = transform(pic_)
@@ -148,9 +148,9 @@ def create_h5file_mul(file_name, **kwargs):
                 pic_temp = read_image(os.path.join(cur_dir, file))
                 pic_dict_ = {}
                 if pm_flag:
-                    pic_dict_ = pic_move(pic_temp)
+                    pic_dict_ = pic_move(pic_temp, pm_flag)
                 else:
-                    pic_dict_ = pic_temp
+                    pic_dict_ = pic_move(pic_temp, pm_flag)
 
                 for i in range(0, len(pic_dict_)):
                     pic_ = pic_dict_[i]

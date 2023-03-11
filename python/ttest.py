@@ -36,7 +36,10 @@ def main(args):
     else:
         pm_flag = False
 
+    print(f'pm_flag:{pm_flag}')
     trained_name = '_'+ 'para' + str(para_index_tr) + '_' + "nnpar_" + str(nnpar_index)
+
+
     test_name = '_'+ 'para' + str(para_index_tr) + '--' + str(para_index_te) + '_' + "nnpar_" + str(nnpar_index)
 
 
@@ -71,9 +74,11 @@ def main(args):
     else:
         mul = False
 
+
     h5file_name = total_type + '_' + data_type + '_para' + \
         str(para_index) + "_nnpar" + str(nnpar_index) + '.hdf5'
-    
+
+
     if mul:
         h5file_name = total_type + '_' + data_type + '_para' + \
         str(para_index) + "_nnpar" + str(nnpar_index) + '_mul.hdf5'
