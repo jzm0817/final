@@ -26,7 +26,7 @@ l = link16(mem_num, hop_num, net_interval, fs);
 freq_pattern = l.freq_pattern;   %%% real frequency pattern 
 
 %%%  real doa
-union_doa = 5;
+union_doa = 10;
 doa_pattern = repmat((1:1:size(fieldnames(mod_para), 1))' .* union_doa, 1, hop_num);
 union_phi = 15;
 phi_pattern = repmat((1:1:size(fieldnames(mod_para), 1))' .* union_phi, 1, hop_num);
