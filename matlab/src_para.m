@@ -3,8 +3,8 @@ clear;
 close all;
 
 save2mat = 1;
-index = 1;
-pic_number = 200;
+index = 9;
+pic_number = 5;
 multi = 0;
 freq_num = 1;
 rand_select = 1;

@@ -18,13 +18,13 @@ import matplotlib.pyplot as plt
 
 path_dict = path.get_dataset_path(path.pic_path)
 print(path_dict["dict"])
-root = path_dict["path"] + path_dict["dict"][6]
+root = path_dict["path"] + path_dict["dict"][0]
 print(root)
 pic_list = [
             transforms.Resize((192, 192)),
             # transforms.CenterCrop((400,400)),                                                      
-            # transforms.ConvertImageDtype(torch.double),
-            # transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
+            transforms.ConvertImageDtype(torch.double),
+            transforms.Normalize([0.5,0.5,0.5],[0.5,0.5,0.5]),
             # transforms.Grayscale()
         ]
 
@@ -36,7 +36,7 @@ col = 0
 interval = 20
 exten = 20
 label_dict = {}
-num = 7
+num = 1
 for cur_dir, dirs, files in os.walk(root):
     # for file in files:
         # if cnt == 1:

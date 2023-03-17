@@ -55,10 +55,11 @@ def main(args):
         test_flag = True
         data_type = "test"
         para_index = para_index_te
-        pic_enhance = []
+        pic_enhance = nnpar.pic_enhance_list
         print("------------  testing  ------------")
     else:
         test_flag = False
+        drop_last = True
 
     if args.train:
         train_flag = True 
@@ -68,6 +69,7 @@ def main(args):
         print("------------  training  ------------")
     else:
         train_flag = False
+        drop_last = False
     
     if args.mul:
         mul = True
@@ -98,8 +100,9 @@ def main(args):
         num_workers = 8
         pin_mem = True
 
-    data_set = DataLoader(data_set, batch_size=nnpar.bs, shuffle=True, pin_memory=pin_mem, num_workers=num_workers, drop_last=False)
     
+    data_set = DataLoader(data_set, batch_size=nnpar.bs, shuffle=True, pin_memory=pin_mem, num_workers=num_workers, drop_last=drop_last)
+   
     # model = net.neuralnetwork(nnpar.nn_list).to(device)
     model = nnpar.ann.to(device)
 

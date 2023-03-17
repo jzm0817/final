@@ -187,6 +187,8 @@ def test(model, data_set_test, device, bs, trained_name):
         tl, pl = p.tolist()
         cm[tl, pl] = cm[tl, pl] + 1
     # print(cm)
+    # cm = torch(np.array([[98, 0, 0, 102], [0, 194, 3, 3], [0, 71, 128, 1], [1, 0, 0, 199]]) , dtype=torch.int64)
+    
     plot_confusion_matrix(cm, names, normalize=True)
     pres = "cm_"
     output_str = "_normal"
@@ -198,7 +200,9 @@ def test(model, data_set_test, device, bs, trained_name):
     # print(f'stacked.shape:{stacked.shape}')
     # print(f'len(real_label):{len(real_label)}') 
     # print(f'len(real_label):{len(real_label)}') 
-    print(f'accurency = {correct}/{len(data_set_test) * bs} = {correct/len(data_set_test)/bs}')
+    # print(len(data_set_test))
+    print(f'accuracy = {correct}/{len(data_set_test) * bs} = {correct/(len(data_set_test) * bs)}')
+    # print(f'accuracy = {correct}/{len(data_set_test) * bs} = {correct/len(data_set_test) / bs}')
 
 
 
