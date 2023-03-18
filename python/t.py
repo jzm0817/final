@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 path_dict = path.get_dataset_path(path.pic_path)
 print(path_dict["dict"])
-root = path_dict["path"] + path_dict["dict"][0]
+root = path_dict["path"] + path_dict["dict"][6]
 print(root)
 pic_list = [
             transforms.Resize((192, 192)),

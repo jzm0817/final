@@ -2,7 +2,7 @@
 import path
 import par
 from plotcm import plot_confusion_matrix
-
+from openpyxl import Workbook
 
 import numpy as np
 import torch
@@ -138,7 +138,7 @@ def train(model, data_set_training, optimizer, loss_fn, epoch, device):
     return loss_total
 
 
-def test(model, data_set_test, device, bs, trained_name):
+def test(model, data_set_test, device, bs, trained_name, mul_flag):
     model.eval()
 
     correct = 0
@@ -173,10 +173,70 @@ def test(model, data_set_test, device, bs, trained_name):
 
         correct += (pred.argmax(1) == label).type(torch.float).sum().item()
 
+
     real_label = np.array(real_label)
     pred_label = np.array(pred_label)
-    # print(real_label)
-    # print(real_label.flatten())
+
+    if mul_flag:
+        wb = Workbook()
+        ws = wb.active
+        # ws['A1'] = 'real_label'
+        # ws['B1'] = 'pred_label'
+        row1 = real_label.tolist()
+        row2 = pred_label.tolist()
+        ws.append(row1)
+        ws.append(row2)
+        row3 = []
+        row4 = []
+        mem_num = 3
+        for i in range(0, len(row1[::3])):
+            vec = row2[(i) * mem_num:(i+1)* mem_num]
+            vec_set = set(vec)
+            vec_tmp = np.bincount(vec)
+            row3.append(np.argmax(vec_tmp))  
+            if len(vec_set) == mem_num:
+                row4.append(1)
+            else:
+                row4.append(0)
+        ws.append(row3)
+        ws.append(row4)
+        # print(len(row1[::3]))
+        # print(pred_label)
+        # print(real_label)
+        wb.save('D:/workspace/art/net/' + trained_name + '.xlsx')
+        # print(real_label.flatten())
+        real_label_ = row1[::3]
+        
+        cnt_err = 0
+        cnt_tr = 0
+        real_label_mod = []
+        pred_label_mod = []
+
+        for i in range(0, len(real_label_)):
+            if row4[i] == 1:
+                cnt_err += 1
+            else:
+                cnt_tr += 1
+                real_label_mod.append(real_label_[i])
+                pred_label_mod.append(row3[i])
+        
+
+        print(f'cnt_err:{cnt_err}')
+        print(f'cnt_tr:{cnt_tr}') 
+        # print(real_label_mod)
+        # print(pred_label_mod)
+        stacked1 = torch.stack((torch.tensor(real_label_mod, dtype=torch.int64), torch.tensor(pred_label_mod, dtype=torch.int64)), dim=1)
+        names1 = list(par.data_type_dict.values())
+        cm1 = torch.zeros(len(par.data_type_dict), len(par.data_type_dict), dtype=torch.int64)
+        for p in stacked1:
+            tl, pl = p.tolist()
+            cm1[tl, pl] = cm1[tl, pl] + 1
+        # print(cm1)
+        plot_confusion_matrix(cm1, names1, normalize=False)
+        pres = "mul_"
+        plt.savefig(f"{path.trainednet_path}/{pres}nn{trained_name}.png")
+
+
     stacked = torch.stack((torch.tensor(real_label.flatten(), dtype=torch.int64), torch.tensor(pred_label.flatten(), dtype=torch.int64)), dim=1)
     # print(stacked[0:7, :])
     names = list(par.data_type_dict.values())

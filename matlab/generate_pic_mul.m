@@ -47,7 +47,8 @@ function generate_pic_mul(path, protocol_matrix, package_len, slot_info,  ...
             label_name = lower(join(protocol_vec, "-"));
         else
             for k = 1:1:size(protocol_matrix, 1)
-                ss = pro_src_data(fs, sample_length, freq(k), mod_para, protocol_matrix(k, i), slot_info);
+                prob = randsrc(1, 1, [prob_vec; 0.7, 0.2, 0.1]);
+                ss = pro_src_data(fs, sample_length, freq(k), mod_para, protocol_matrix(k, i), prob, slot_info);
                 src_signal(k, :) = ss.ss;
             end
             src_signal = sum(src_signal);
@@ -82,7 +83,7 @@ function generate_pic_mul(path, protocol_matrix, package_len, slot_info,  ...
         % fig = figure;
         contour(abs(sig_src_tfspec(1:length(stft_win), :)));
         fig = gcf;
-        % axis off;
+        axis off;
         % frame = getframe(fig);
         % img = frame2im(frame);
         % imwrite(img, path + protocol_type{i} + '_' + string(j) + '.jpg')

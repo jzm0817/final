@@ -61,7 +61,7 @@ function generate_pic(path, protocol_type, package_len, slot_info,       ...
             % fig = figure;
             contour(abs(sig_src_tfspec(1:length(stft_win), :)));
             fig = gcf;
-            % axis off;
+            axis off;
             % frame = getframe(fig);
             % img = frame2im(frame);
             % imwrite(img, path + protocol_type{i} + '_' + string(j) + '.jpg')

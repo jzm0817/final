@@ -18,7 +18,7 @@ from pic import pic_move
 
 path_dict = path.get_dataset_path(path.pic_path)
 print(path_dict["dict"])
-root = path_dict["path"] + path_dict["dict"][2]
+root = path_dict["path"] + path_dict["dict"][6]
 
 pic_list = [
             transforms.Resize((192, 192)),
@@ -47,7 +47,7 @@ for cur_dir, dirs, files in os.walk(root):
     img_show = img.numpy().transpose(1, 2, 0)
     plt.imshow(img_show.astype('uint8'))
     plt.figure()
-    img_dict = pic_move(img)
+    img_dict = pic_move(img, 1)
     print(f'len(img_dict):{len(img_dict)}')
     for i in range(0, len(img_dict)):
         img = img_dict[i]

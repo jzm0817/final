@@ -73,7 +73,7 @@ classdef pro_src_data
         
         if obj.protocol_type == "tdma" || obj.protocol_type == "slottedaloha"
             if isempty(varargin)
-                thorw("parameter: slot_length is required \n")
+                throw("parameter: slot_length is required \n")
             else
                 optional_para = cell2mat(varargin);
                 optional_para_name = string(fieldnames(cell2mat(varargin)));
@@ -191,6 +191,7 @@ classdef pro_src_data
 
 
         function seq = arrange(obj)
+            
             switch obj.protocol_type
             case 'tdma'
                 seq = obj.generate_label_table(0, 0);

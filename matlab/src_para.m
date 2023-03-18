@@ -6,13 +6,13 @@ save2mat = 1;
 index = 9;
 pic_number = 5;
 multi = 0;
-freq_num = 1;
+freq_num = 3;
 rand_select = 1;
 % data_type = "training";
 data_type = "test";
 cnt = pic_number * freq_num;
 
-prob_vec = [0.1, 0.2, 0.3];
+prob_vec = [0.2, 0.2, 0.2];
 % prob_vec = [0.3];
 package_len = [1000, 1000, 1000];
 sample_length = 40000;
@@ -20,9 +20,9 @@ slot_len = 1000;
 slot_info = struct("slot_length", slot_len);
 fs = 610e6;
 
-mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e6, "package_length", package_len(1), "package_number", 5), ...
-"mem1", struct("mod", "psk", "symbol_rate", 5e6, "order", 2, "package_length", package_len(2), "package_number", 5), ...
-"mem2", struct("mod", "qam", "symbol_rate", 5e6, "order", 4, "package_length", package_len(3), "package_number", 5));
+mod_para = struct("mem0", struct("mod", "msk", "symbol_rate", 5e5, "package_length", package_len(1), "package_number", 5), ...
+"mem1", struct("mod", "psk", "symbol_rate", 5e5, "order", 2, "package_length", package_len(2), "package_number", 5), ...
+"mem2", struct("mod", "qam", "symbol_rate", 5e5, "order", 32, "package_length", package_len(3), "package_number", 5));
 
 if ispc()
     para_path = "D:/workspace/art/data_info_mat/";
@@ -108,7 +108,7 @@ protocol_matrix = protocol_matrix';
 
 channel = "awgn";
 % channel = "rayleigh";
-snr = 2000000;
+snr = 10;
 
 stft_win_length = 256 * 2;
 stft_dft_length = stft_win_length * 2;

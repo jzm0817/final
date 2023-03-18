@@ -11,7 +11,7 @@ if ispc()
     para_path = "D:/workspace/art/data_info_mat/";
     h5file_path = "D:/workspace/art/data_h5/";
     if ~exist(para_path)
-        thorw("parameter dictory not exist \n");
+        throw("parameter dictory not exist \n");
     end
 elseif isunix()
     para_path = "/home/jzm/workspace/final/data_info_mat/";

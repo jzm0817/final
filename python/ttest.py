@@ -56,6 +56,7 @@ def main(args):
         data_type = "test"
         para_index = para_index_te
         pic_enhance = nnpar.pic_enhance_list
+        shuffle_flag = False
         print("------------  testing  ------------")
     else:
         test_flag = False
@@ -66,6 +67,7 @@ def main(args):
         data_type = "training"
         para_index = para_index_tr
         pic_enhance = nnpar.pic_enhance_list
+        shuffle_flag = True
         print("------------  training  ------------")
     else:
         train_flag = False
@@ -101,7 +103,7 @@ def main(args):
         pin_mem = True
 
     
-    data_set = DataLoader(data_set, batch_size=nnpar.bs, shuffle=True, pin_memory=pin_mem, num_workers=num_workers, drop_last=drop_last)
+    data_set = DataLoader(data_set, batch_size=nnpar.bs, shuffle=shuffle_flag, pin_memory=pin_mem, num_workers=num_workers, drop_last=drop_last)
    
     # model = net.neuralnetwork(nnpar.nn_list).to(device)
     model = nnpar.ann.to(device)
@@ -135,7 +137,7 @@ def main(args):
         model = nnpar.ann    
         model.load_state_dict(torch.load(f"{path.trainednet_path}/nn{trained_name}.pth"))
         model.to(device)
-        net.test(model, data_set, device, nnpar.bs, test_name)
+        net.test(model, data_set, device, nnpar.bs, test_name, mul)
 
 
 if __name__ == "__main__":

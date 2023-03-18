@@ -13,7 +13,7 @@ def pic_move(pic_tensor, pm_flag):
     row = 0
     col = 0
     interval = 20    ## multiple frequency 
-    exten = 20       ## safe distance
+    exten = 10       ## safe distance
     label_dict = {}
 
     pic_np = pic_tensor.numpy()
