@@ -188,8 +188,8 @@ def test(model, data_set_test, device, bs, trained_name, mul_flag):
         ws.append(row2)
         row3 = []
         row4 = []
-        mem_num = 3
-        for i in range(0, len(row1[::3])):
+        mem_num = 7
+        for i in range(0, len(row1[::mem_num ])):
             vec = row2[(i) * mem_num:(i+1)* mem_num]
             vec_set = set(vec)
             vec_tmp = np.bincount(vec)
@@ -205,7 +205,7 @@ def test(model, data_set_test, device, bs, trained_name, mul_flag):
         # print(real_label)
         wb.save('D:/workspace/art/net/' + trained_name + '.xlsx')
         # print(real_label.flatten())
-        real_label_ = row1[::3]
+        real_label_ = row1[::mem_num ]
         
         cnt_err = 0
         cnt_tr = 0

@@ -46,9 +46,9 @@ pic_list = [
             # transforms.Grayscale()
         ]
     
-pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
-        ]
-# pic_enhance_list = []
+# pic_enhance_list = [transforms.RandomHorizontalFlip(p=1)
+#         ]
+pic_enhance_list = []
 
 batch_size = 32
 epoch = 100
@@ -99,8 +99,8 @@ nn_list = [ ('conv1', nn.Conv2d(3, 10, kernel_size=5)),
 
 
 nn_list = OrderedDict(nn_list)
-model = net.neuralnetwork(nn_list)
-# model = net.resnet(net.residual_block, [2,2,2,2])
+# model = net.neuralnetwork(nn_list)
+model = net.resnet(net.residual_block, [2,2,2,2])
 
 trainpar = net.trainpar(batch_size, learning_rate, epoch, model, pic_size, pic_list, pic_enhance_list)
 
